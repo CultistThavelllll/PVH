@@ -2,726 +2,521 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SWILL WAY — Зайцы против Горохострелов</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Растения против Зайцев: ДЕМО</title>
     <style>
-        * {
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background-color: black; overflow: hidden; font-family: monospace;
+            user-select: none; -webkit-user-select: none;
         }
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; justify-content: center; align-items: center; flex-direction: column;
+        }
+        #loading-screen { display: flex; color: white; text-align: center; }
+        
+        @keyframes blink { 0%, 100% {opacity: 1;} 50% {opacity: 0;} }
+        @keyframes whiteFlash { 0% { filter: brightness(1); } 50% { filter: brightness(3) white; } 100% { filter: brightness(1); } }
+        @keyframes ghostOut { from { opacity: 1; filter: brightness(10); } to { opacity: 0; transform: translateY(-20px); } }
+        
+        .blinking { animation: blink 1s infinite; color: red; font-weight: bold; margin: 20px;}
+        
+        #main-menu {
+            background: url('https://www.dropbox.com/scl/fi/0weoum0ee37vr2mh64yye/Picsart_26-04-21_12-16-41-162.jpg?rlkey=g5sz7jmrxingo606mrwimpr3h&st=8b84e0uy&dl=1') no-repeat center/cover;
+        }
+        #start-btn { position: absolute; bottom: 5%; width: 50%; max-width: 200px; cursor: pointer;}
 
-        body {
-            background: black;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Courier New', 'VT323', monospace;
-            overflow: hidden;
-        }
+        #seed-selection { background: black; color: white; }
+        #zombie-preview { width: 100%; height: 100%; opacity: 0; transition: opacity 1s; position: absolute; object-fit: cover; z-index: 1;}
+        #seed-box-container { position: absolute; bottom: -100%; width: 100%; height: 100%; transition: bottom 0.5s; z-index: 2; pointer-events: none;}
+        #seed-box { width: 100%; position: absolute; bottom: 0; pointer-events: auto;}
+        #seed-pea { position: absolute; bottom: 15%; left: 10%; width: 20%; z-index: 3; pointer-events: auto; transition: filter 0.2s;} 
+        #start-fight-btn { position: absolute; bottom: 5%; left: 30%; width: 40%; z-index: 3; pointer-events: auto;}
+        
+        .selected-seed { filter: brightness(0.3) opacity(0.8) !important; }
+        .not-enough-sun { filter: brightness(0.3) grayscale(1); }
 
-        /* главный контейнер */
-        #gameContainer {
-            position: relative;
-            width: 1200px;
-            height: 675px;
-            background: black;
-            box-shadow: 0 0 0 2px #2e4b1b;
-            overflow: hidden;
+        #game-screen { background: #2d8a2d; position: relative; }
+        #asphalt { position: absolute; left: 0; top: 0; width: 15%; height: 100%; background: #ccc; }
+        #grid { 
+            position: absolute; left: 15%; top: 10%; width: 85%; height: 90%;
+            display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr);
         }
+        .cell { border: 1px solid rgba(0,0,0,0.1); position: relative; }
+        
+        #ui-top { position: absolute; top: 0; left: 0; width: 100%; height: 10%; display: flex; justify-content: space-between; z-index: 10; pointer-events: none;}
+        #sun-counter { 
+            background: #8b4513; color: white; border: 2px solid yellow; 
+            padding: 5px; font-size: 14px; margin: 5px; pointer-events: auto;
+        }
+        #level-info { background: darkblue; color: white; border: 1px solid black; padding: 5px; margin: 5px; font-size: 12px; text-align:right;}
+        
+        #seed-bank-wrapper { position: absolute; left: 10px; top: 40px; width: 60px; height: 80px; overflow: hidden; }
+        #seed-bank { width: 100%; cursor: pointer; }
+        #cooldown-overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 0%; 
+            background: rgba(0,0,0,0.7); pointer-events: none; transition: height 0.1s linear;
+        }
+        
+        .plant { width: 80%; height: 80%; position: absolute; bottom: 5px; left: 10%; transition: filter 0.2s;}
+        .zombie { 
+            width: 60px; height: 80px; position: absolute; background: url('https://www.dropbox.com/scl/fi/o7gsnni0d6jhvjqa1xjmw/Picsart_26-04-29_23-54-32-866.png?rlkey=bpg3zl4gmwi9r8nhlcvbi3ilh&st=dxvn5on9&dl=1') no-repeat center/contain;
+            transition: left 0.1s linear, filter 0.2s;
+        }
+        .zombie.dying { animation: ghostOut 0.5s forwards; }
+        .zombie.hit { filter: brightness(3); }
 
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
+        .pea-projectile { width: 35px; height: 35px; background: url('https://www.dropbox.com/scl/fi/ouqp81ohu2to1ajb8mpiw/Picsart_26-04-30_12-00-03-005.png?rlkey=rz4rc5m2eunj76ucz6lt80quy&st=7asm32b7&dl=1') no-repeat center/contain; position: absolute; z-index: 5; margin-top: -10px;}
+        
+        .sun { 
+            width: 50px; height: 50px; position: absolute; 
+            background: url('https://www.dropbox.com/scl/fi/0lgksimywbhb4nw24pr6s/Picsart_26-04-30_12-32-46-760.png?rlkey=bml9biantsnvjq4epmi2jqkvo&st=krb1twoz&dl=1') no-repeat center/contain; 
+            z-index: 10; cursor: pointer;
         }
+        .sun-collecting { transition: all 0.5s ease-in !important; z-index: 100; }
 
-        /* всплывающие окна (DOM для уведомлений) */
-        .popup-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 200;
-            visibility: hidden;
-        }
-        .popup-card {
-            position: relative;
-            cursor: pointer;
-        }
-        .popup-card img {
-            display: block;
-            max-width: 450px;
-            width: 90%;
-            border: none;
-            box-shadow: 0 0 15px gold;
-        }
-        .red-cross {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 32px;
-            cursor: pointer;
-        }
+        #ready-set-plant { position: absolute; top: 40%; width: 100%; text-align: center; color: red; font-size: 40px; font-weight: bold; text-shadow: 2px 2px black; z-index: 20; display: none;}
+        #wave-warning { position: absolute; top: 40%; width: 100%; text-align: center; color: red; font-size: 24px; font-weight: bold; text-shadow: 2px 2px black; z-index: 20; display: none; transform: scale(0.1); transition: transform 2s;}
+        
+        .error-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: none; background: rgba(0,0,0,0.8); }
+        .error-popup img { width: 80%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
 
-        /* скрытые элементы */
-        .hidden {
-            display: none;
-        }
+        #white-fade { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; opacity: 0; pointer-events: none; transition: opacity 3s; z-index: 999;}
     </style>
 </head>
 <body>
-<div id="gameContainer">
-    <canvas id="gameCanvas" width="1200" height="675"></canvas>
+
+<audio id="bgm-menu" src="https://www.dropbox.com/scl/fi/012uukhxiz87qgdaus8ma/02.-Crazy-Dave-Intro-Theme.mp3?rlkey=i7b1zcq4yf14eepf55xbl0hok&st=hc3h77ie&dl=1" loop></audio>
+<audio id="bgm-seed" src="https://www.dropbox.com/scl/fi/2ue39yzvpcwulyfjisvqi/03.-Choose-Your-Seeds.mp3?rlkey=52tn4bxl07xb3fmqzl1jrvnqu&st=v5m0v9fk&dl=1" loop></audio> 
+<audio id="bgm-game" src="https://www.dropbox.com/scl/fi/vyydag2rvkrwk5lrypk0j/04.-Grasswalk.mp3?rlkey=cdz2wxaeiy8i6i9emna22awe6&st=98vcjgdo&dl=1" loop></audio>
+<audio id="sfx-click" src="https://www.dropbox.com/scl/fi/nnpcdbjr77d9v0fjhjy6x/Voicy_Button-Click-pvz.mp3?rlkey=uhwo2es4qitkadjseb6qbilaa&st=6epsmstj&dl=1"></audio>
+<audio id="sfx-ready" src="https://www.dropbox.com/scl/fi/6nyzgkjbxan27en03yljk/plants-vs-zombies-ready-set-plant.mp3?rlkey=8lxxgfy6ton8kq0oo9ng21shu&st=qq6fo0td&dl=1"></audio>
+<audio id="sfx-seed-pickup" src="https://www.dropbox.com/scl/fi/ubrllwhz3fedilz9qjwnn/plants-vs-zombies-seed-packet-sound.mp3?rlkey=852c6yy1teyif9r58vwsd9poh&st=7qp9ejbz&dl=1"></audio>
+<audio id="sfx-plant" src="https://www.dropbox.com/scl/fi/6fi6gjjlcjx9vdgg2981z/plants-vs-zombies-planting-sound-2.mp3?rlkey=zd898mwjy9ipku7x5eibsllnx&st=xdja7565&dl=1"></audio>
+<audio id="sfx-sun" src="https://www.dropbox.com/scl/fi/noqzytc2p3sbcujppc2vd/plants-vs-zombies-sun-pickup.mp3?rlkey=4ba9jewr8al2vayjbbseu4s58&st=bbkj97sf&dl=1"></audio>
+<audio id="sfx-hit" src="https://www.dropbox.com/scl/fi/djhpyld3zizkx2m38t2be/plants-vs-zombies-hit-2.mp3?rlkey=82lx2fgtt27lrhiewprcnj2jc&st=usugyt74&dl=1"></audio>
+<audio id="sfx-eat" src="https://www.dropbox.com/scl/fi/6jyexllg84qsn0egd144a/plants-vs-zombies-eating-for-1-minute-straight.mp3?rlkey=zs106zj8jdjouwxnuno5naizv&st=1dm6hbrr&dl=1"></audio>
+<audio id="sfx-zombie-come" src="https://www.dropbox.com/scl/fi/gnq5dgwz76c4du7lc6cud/2_5422779880628592419.ogg?rlkey=tb0tlsqnat1yrfbgp2uezabg2&st=i1gkp7cb&dl=1"></audio>
+<audio id="sfx-wave" src="https://www.dropbox.com/scl/fi/2oe0tcfzawayneoesv5nb/plants-vs-zombies-wave.mp3?rlkey=cmmwhp8frh7w02jm0u5pyz6jf&st=fgnabjjr&dl=1"></audio>
+<audio id="sfx-win" src="https://www.dropbox.com/scl/fi/5oldgcoeslosozsidjz6u/pvz-victory.mp3?rlkey=4t7bqnw8blr99um20ashag9zv&st=wij1q135&dl=1"></audio>
+<audio id="sfx-lose" src="https://www.dropbox.com/scl/fi/diy2iftqbr39tgu16a7a0/the-zombies-ate-your-brains-plants-vs-zombies-made-with-Voicemod.mp3?rlkey=njzpulqfo43hbd4bdt1gctosf&st=00wqy5h3&dl=1"></audio>
+
+<div id="loading-screen" class="screen">
+    <div id="load-text">Загрузка Ресурсов — 0%<br>(Это займёт считанные секунды)</div>
+    <div id="demo-warning" style="display:none;">
+        <div class="blinking">Предупреждение: Игра находится в ДЕМО версии. Поэтому здесь пока-что практически ничего нет. Мы это обещаем исправить в ближайшее время. Игра создана пользователем — @NICK_HATO</div>
+        <div>Тапните на экран в любое место, чтобы начать игру.</div>
+    </div>
 </div>
 
-<!-- DOM уведомления -->
-<div id="popupWarning" class="popup-overlay">
-    <div class="popup-card" id="popupWarningCard">
-        <img id="warningImg" src="" alt="warning">
-        <img id="warningClose" class="red-cross" src="" alt="close">
+<div id="main-menu" class="screen">
+    <img id="start-btn" src="https://www.dropbox.com/scl/fi/d7hoc89v1jq75k5xhv2g8/Picsart_26-04-29_23-56-57-193.png?rlkey=fuuws2f2pr7d2gyl31ngql2lc&st=kozrxcx0&dl=1">
+</div>
+
+<div id="seed-selection" class="screen">
+    <div style="position:absolute; bottom:10px; text-align:center; width:100%;">Уровень 1 - День</div>
+    <img id="zombie-preview" src="https://www.dropbox.com/scl/fi/uhdjok7txqglclc0n023u/Picsart_26-04-21_12-10-57-444.jpg?rlkey=psorjsnrwmtghhsaubnnfidfl&st=gxwspjyo&dl=1">
+    <div id="seed-box-container">
+        <img id="seed-box" src="https://www.dropbox.com/scl/fi/45jbnhoiza0ormmnoqi0x/Picsart_26-04-30_00-08-05-508.png?rlkey=f3mkqmna2c5iaa6uf6zs55o19&st=dqm9lvk1&dl=1">
+        <img id="seed-pea" src="https://www.dropbox.com/scl/fi/1b08fandqm30ib5nc2ma1/Picsart_26-04-29_23-47-11-140.png?rlkey=f2hqhaxuvbh30c5kceubou2dr&st=ehkv0jaq&dl=1" style="display:none;">
+        <img id="start-fight-btn" src="https://www.dropbox.com/scl/fi/wyhmbwehjt1t6u5qqiaho/Picsart_26-04-30_00-12-56-442.png?rlkey=zvw0ljerhw7a0voparkv93zo9&st=khsdt6vk&dl=1" style="display:none;">
     </div>
 </div>
-<div id="popupConfirmReset" class="popup-overlay">
-    <div class="popup-card" id="confirmResetCard">
-        <img id="resetConfirmImg" src="" alt="confirm reset">
+
+<div id="game-screen" class="screen">
+    <div id="asphalt"></div>
+    <div id="grid"></div>
+    <div id="ui-top">
+        <div id="sun-counter">Количество Солнц: 100</div>
+        <div id="level-info">Уровень - 1. Этап - День<br>Количество Волн — <span id="wave-count">1</span></div>
     </div>
-</div>
-<div id="popupContinue" class="popup-overlay">
-    <div class="popup-card" id="continueCard">
-        <img id="continueImg" src="" alt="continue info">
+    <div id="seed-bank-wrapper">
+        <img id="seed-bank" src="https://www.dropbox.com/scl/fi/1b08fandqm30ib5nc2ma1/Picsart_26-04-29_23-47-11-140.png?rlkey=f2hqhaxuvbh30c5kceubou2dr&st=m1o0g8ma&dl=1">
+        <div id="cooldown-overlay"></div>
     </div>
+    <div id="ready-set-plant"></div>
+    <div id="wave-warning">Приближаеться огромная волна зомби зайцев! Постарайтесь как можно быстрее заполнить клетки растениями.</div>
+    <img id="win-seed" src="https://www.dropbox.com/scl/fi/94ixo4rnm687xqsf5qu2q/Picsart_26-04-29_23-48-27-973.png?rlkey=a1s95150lhm2kyatcmom9t8dj&st=xzm3qqxb&dl=1" style="display:none; position:absolute; top:40%; left:40%; width:20%; z-index:50; animation: blink 1s infinite;">
 </div>
-<div id="popupLose" class="popup-overlay">
-    <div class="popup-card" id="loseCard">
-        <img id="loseImg" src="" alt="you lose">
-    </div>
+
+<div id="error-nopass" class="error-popup" onclick="closePopup(this)">
+    <img src="https://www.dropbox.com/scl/fi/zzkxux7p0tdnzzvgrmy6j/Picsart_26-04-30_00-11-24-838.png?rlkey=84ddp30mbylf7lngunofj424h&st=efi74jka&dl=1">
 </div>
+<div id="error-demo-end" class="error-popup" onclick="closePopupAndReload(this)">
+    <img src="https://www.dropbox.com/scl/fi/wtlfgr4lmg80g2nv556hq/Picsart_26-04-30_00-00-02-877.png?rlkey=fts1baq5nk0a9znm08nwdkejs&st=9dcqkxq8&dl=1">
+</div>
+<div id="lose-screen" class="error-popup" onclick="location.reload()">
+    <img src="https://www.dropbox.com/scl/fi/5tpnk6m84qtrlk31f1aqm/Picsart_26-04-30_00-03-35-629.png?rlkey=bd2rbpixio3tktmdox2zg40dd&st=q1ugx6sm&dl=1">
+</div>
+
+<div id="white-fade"></div>
 
 <script>
-    (function(){
-        // ---------------------- РЕСУРСЫ --------------------------
-        // Все ссылки из ТЗ
-        const ASSETS = {
-            // музыка/звуки
-            menuMusic: "https://www.dropbox.com/scl/fi/012uukhxiz87qgdaus8ma/02.-Crazy-Dave-Intro-Theme.mp3?rlkey=i7b1zcq4yf14eepf55xbl0hok&st=v7feu5qn&dl=1",
-            chooseMusic: "https://www.dropbox.com/scl/fi/2ue39yzvpcwulyfjisvqi/03.-Choose-Your-Seeds.mp3?rlkey=52tn4bxl07xb3fmqzl1jrvnqu&st=ri4223v6&dl=1",
-            battleStartVoice: "https://www.dropbox.com/scl/fi/6nyzgkjbxan27en03yljk/plants-vs-zombies-ready-set-plant.mp3?rlkey=8lxxgfy6ton8kq0oo9ng21shu&st=d05kc02w&dl=1",
-            gameMusic: "https://www.dropbox.com/scl/fi/vyydag2rvkrwk5lrypk0j/04.-Grasswalk.mp3?rlkey=cdz2wxaeiy8i6i9emna22awe6&st=hgwknz2o&dl=1",
-            clickSound: "https://www.dropbox.com/scl/fi/nnpcdbjr77d9v0fjhjy6x/Voicy_Button-Click-pvz.mp3?rlkey=uhwo2es4qitkadjseb6qbilaa&st=71yrlebm&dl=1",
-            seedSelectSound: "https://www.dropbox.com/scl/fi/ubrllwhz3fedilz9qjwnn/plants-vs-zombies-seed-packet-sound.mp3?rlkey=852c6yy1teyif9r58vwsd9poh&st=q3uusgqx&dl=1",
-            plantSound: "https://www.dropbox.com/scl/fi/6fi6gjjlcjx9vdgg2981z/plants-vs-zombies-planting-sound-2.mp3?rlkey=zd898mwjy9ipku7x5eibsllnx&st=tiymofsm&dl=1",
-            sunPickup: "https://www.dropbox.com/scl/fi/noqzytc2p3sbcujppc2vd/plants-vs-zombies-sun-pickup.mp3?rlkey=4ba9jewr8al2vayjbbseu4s58&st=0g2pnbcv&dl=1",
-            zombieSpawnSound: "https://www.dropbox.com/scl/fi/gnq5dgwz76c4du7lc6cud/2_5422779880628592419.ogg?rlkey=tb0tlsqnat1yrfbgp2uezabg2&st=mzf3q0em&dl=1",
-            thunderWave: "https://www.dropbox.com/scl/fi/2oe0tcfzawayneoesv5nb/plants-vs-zombies-wave.mp3?rlkey=cmmwhp8frh7w02jm0u5pyz6jf&st=00528hml&dl=1",
-            victorySound: "https://www.dropbox.com/scl/fi/5oldgcoeslosozsidjz6u/pvz-victory.mp3?rlkey=4t7bqnw8blr99um20ashag9zv&st=ugtx6nf8&dl=1",
-            loseSound: "https://www.dropbox.com/scl/fi/diy2iftqbr39tgu16a7a0/the-zombies-ate-your-brains-plants-vs-zombies-made-with-Voicemod.mp3?rlkey=njzpulqfo43hbd4bdt1gctosf&st=czp3qnf3&dl=1",
-            eatingSound: "https://www.dropbox.com/scl/fi/6jyexllg84qsn0egd144a/plants-vs-zombies-eating-for-1-minute-straight.mp3?rlkey=zs106zj8jdjouwxnuno5naizv&st=x5a7w688&dl=1",
-            // изображения
-            menuBg: "https://www.dropbox.com/scl/fi/0weoum0ee37vr2mh64yye/Picsart_26-04-21_12-16-41-162.jpg?rlkey=g5sz7jmrxingo606mrwimpr3h&st=h0etll4w&dl=1",
-            newGameBtnImg: "https://www.dropbox.com/scl/fi/od9jwf717s0p0usywlhao/Picsart_26-04-21_16-10-32-905.png?rlkey=vi78plkuwkxvg4k3hh651vo3i&st=zj8lqn54&dl=1",
-            continueBtnImg: "https://www.dropbox.com/scl/fi/xg5ls7scf15j79v7lpdzz/Picsart_26-04-21_17-26-21-933.png?rlkey=nxv6fpsm21uc7zkmccctgivjv&st=14lkyp81&dl=1",
-            continueWindowImg: "https://www.dropbox.com/scl/fi/cycavdv9ckfeejp0zsqdn/Picsart_26-04-21_17-27-56-370.png?rlkey=bes1haf6zv75s6axtcu2ra482&st=rh3ov27o&dl=1",
-            resetConfirmImg: "https://www.dropbox.com/scl/fi/8bd2rby9eu04lydyc6jvk/Picsart_26-04-21_17-29-54-257.png?rlkey=qyrqu139ip3260h51tsdix5vk&st=ebg68ice&dl=1",
-            loseWindowImg: "https://www.dropbox.com/scl/fi/97bxd3e5p498roupmn254/Picsart_26-04-21_16-18-28-574.png?rlkey=zxexjs17yl2bta09d3rinvrom&st=qb0q7jwi&dl=1",
-            roadBg: "https://www.dropbox.com/scl/fi/uhdjok7txqglclc0n023u/Picsart_26-04-21_12-10-57-444.jpg?rlkey=psorjsnrwmtghhsaubnnfidfl&st=4gmc7qd0&dl=1",
-            plantSelectTable: "https://www.dropbox.com/scl/fi/wv0m1ud3q35i3zb986d8q/100.png?rlkey=v4yx0v68k3cnhiweavcvmdsif&st=qowelf3r&dl=1",
-            peashooterIcon: "https://www.dropbox.com/scl/fi/dybnv6q0sq4e1jbo463nx/Picsart_26-04-22_21-19-12-540.png?rlkey=l4417xjibaas0thtog5vnip7e&st=woo3m84i&dl=1",
-            peashooterPlanted: "https://www.dropbox.com/scl/fi/5reanl9qnhg9ndfsktatk/Picsart_26-04-22_21-18-34-710.png?rlkey=pa66xczkfr9q93ok29qdpfuu4&st=se53kx8j&dl=1",
-            sunIcon: "https://www.dropbox.com/scl/fi/iuzc6091webhaz4dfljzy/Picsart_26-04-22_21-18-15-309.png?rlkey=9k7venhhw1cnlwprs6ywjtp5p&st=zg4z5npw&dl=1",
-            zombieHare: "https://www.dropbox.com/scl/fi/zxaankrnb4iup4qv8j77z/Picsart_26-04-22_21-17-46-981.png?rlkey=wwn5ngfb98adu1rz3hb9dgdl4&st=dsws9bsw&dl=1",
-            peaProjectile: "https://www.dropbox.com/scl/fi/j174fmevqjsj5ej695o7g/Picsart_26-04-21_15-16-38-225.png?rlkey=09y87aj3xv3fjh2itgvvno0b3&st=x7onqhfv&dl=1",
-            sunflowerReward: "https://www.dropbox.com/scl/fi/3uyzls7sy8kzey78agcik/Picsart_26-04-22_21-19-42-960.png?rlkey=e02k30a6pgq9vb7rln62bp810&st=yqtt3wvg&dl=1",
-            // дополнительно иконка семени в бою
-            seedSlotIcon: "https://www.dropbox.com/scl/fi/nbq5k06dvdqzy1gwgm35z/Picsart_26-04-21_12-01-14-105.png?rlkey=hrrm6tmhl16uor21gtljiigb5&st=x82bv60g&dl=1"
-        };
+    let suns = 100;
+    let peaSelected = false;
+    let plantingMode = false;
+    let gameActive = false;
+    let zombiesKilled = 0;
+    let waveTriggered = false;
+    let gridRows = 5;
+    let gridCols = 5;
+    let cells = [];
+    let zombies = [];
+    let plants = [];
+    let cooldownActive = false;
 
-        // состояния
-        let gameState = "loading"; // loading, menu, selectPlants, battle, victoryReward
-        let resourcesLoaded = false;
-        let loadProgress = 0;
-        let images = {};
-        let sounds = {};
+    const playSfx = (id) => { let a = document.getElementById(id); if(a){a.currentTime=0; a.play();} }
+    const stopAudio = (id) => { let a = document.getElementById(id); if(a){a.pause(); a.currentTime=0;} }
+    const stopAllSounds = () => { document.querySelectorAll('audio').forEach(a => {a.pause(); a.currentTime=0;}); }
 
-        // глобальные переменные игры
-        let canvas = document.getElementById('gameCanvas');
-        let ctx = canvas.getContext('2d');
-        let animationId = null;
-        let menuMusicAudio = null;
-        let currentMusic = null;
-        let clickSoundPlay = ()=>{}; 
+    // Система загрузки
+    let loadPercent = 0;
+    let loadInterval = setInterval(() => {
+        loadPercent += 10;
+        document.getElementById('load-text').innerHTML = `Загрузка Ресурсов — ${loadPercent}%<br>(Это займёт считанные секунды)`;
+        if(loadPercent >= 100) {
+            clearInterval(loadInterval);
+            document.getElementById('load-text').style.display = 'none';
+            document.getElementById('demo-warning').style.display = 'block';
+        }
+    }, 200);
 
-        // игровые параметры
-        let sunAmount = 0;
-        let selectedPlant = null; // 'peashooter'
-        let plants = []; // {row, x, y, img, hp, shootCooldown, lastShot}
-        let zombies = []; // {row, x, y, hp, width, height, eatingPlant, eatTimer, img}
-        let projectiles = []; // {row, x, y, dmg, img}
-        let sunDrops = []; // {x, y, value, collected, timer}
-        let waveCount = 1;
-        let waveStage = 0;
-        let zombiesToSpawnQueue = [];
-        let waveInProgress = false;
-        let spawnCooldown = 0;
-        let gameOver = false;
-        let victoryPending = false;
-        let sunflowerUnlocked = false; // после победы
-        let gameWinFlag = false;
-
-        // координаты рядов (5 дорожек, Y отступы)
-        const rowsY = [180, 260, 340, 420, 500];
-        const rowCount = 5;
-        const plantX = 180; // фикс позиция посадки (левее, чтобы зомби шли)
-        const zombieStartX = 1080;
-        const houseX = 60; // поражение если x < houseX
-
-        // UI элементы
-        let showPlantSelection = false;
-        let selectedForBattle = false; // было ли выбрано растение (чёрная прозрачность)
-        let battleStartCountdown = 0;
-        let battleActive = false;
-        let waveWarningActive = false;
-        let waveWarningTimer = 0;
-        let victoryRewardItem = null;
-        let victoryRewardTimer = 0;
-
-        // таймеры солнца
-        let sunSpawnTimer = 0;
-        let sunInterval = 15 * 60; // 15 секунд при 60fps
-
-        // волновые данные
-        let waveSequence = [
-            {count:1, delayAfterKill: 3},
-            {count:2, delayAfterKill: 3},
-            {count:3, delayAfterKill: 3},
-            {count:2, delayAfterKill: 2},
-            {count:4, delayAfterKill: 2},
-            {count:2, delayAfterKill: 3},
-            {count:3, delayAfterKill: 5, specialWave: true}
-        ];
-        let waveIndex = 0;
-        let waveRemaining = 0;
-        let waveWaitTimer = 0;
-        let waveCompleteFlag = false;
-
-        // загрузка ресурсов
-        function loadAllResources() {
-            let total = Object.keys(ASSETS).length;
-            let loaded = 0;
-            for(let key in ASSETS) {
-                if(key.includes('Music') || key.includes('Sound') || key.includes('Voice') || key === 'clickSound' || key === 'seedSelectSound' || key === 'plantSound' || key === 'sunPickup' || key === 'zombieSpawnSound' || key === 'thunderWave' || key === 'victorySound' || key === 'loseSound' || key === 'eatingSound') {
-                    let audio = new Audio();
-                    audio.src = ASSETS[key];
-                    audio.preload = 'auto';
-                    sounds[key] = audio;
-                    audio.onloadeddata = () => {
-                        loaded++;
-                        loadProgress = Math.floor((loaded/total)*100);
-                        drawLoadingScreen();
-                        if(loaded === total) finishLoading();
-                    };
-                    audio.onerror = () => { loaded++; loadProgress = Math.floor((loaded/total)*100); drawLoadingScreen(); if(loaded===total) finishLoading(); };
-                } else {
-                    let img = new Image();
-                    img.src = ASSETS[key];
-                    images[key] = img;
-                    img.onload = () => {
-                        loaded++;
-                        loadProgress = Math.floor((loaded/total)*100);
-                        drawLoadingScreen();
-                        if(loaded === total) finishLoading();
-                    };
-                    img.onerror = () => { loaded++; loadProgress = Math.floor((loaded/total)*100); drawLoadingScreen(); if(loaded===total) finishLoading(); };
+    document.getElementById('loading-screen').onclick = () => {
+        if(loadPercent >= 100) {
+            if(localStorage.getItem('pvz_demo_beaten') === 'true') {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('main-menu').style.display = 'flex';
+                document.getElementById('bgm-menu').play();
+                document.getElementById('start-btn').onclick = () => {
+                    playSfx('sfx-click');
+                    document.getElementById('error-demo-end').style.display = 'block';
                 }
-            }
-        }
-
-        function drawLoadingScreen() {
-            ctx.fillStyle = 'black';
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 28px "Courier New"';
-            ctx.textAlign = 'center';
-            ctx.fillText(`Загрузка Ресурсов — ${loadProgress}%`, canvas.width/2, canvas.height/2);
-            ctx.font = '18px monospace';
-            ctx.fillStyle = '#aaa';
-            ctx.fillText('это займёт считанные секунды.', canvas.width/2, canvas.height/2+40);
-        }
-
-        function finishLoading() {
-            resourcesLoaded = true;
-            gameState = "menu";
-            // предзагрузка музыки меню и запуск
-            if(sounds.menuMusic) {
-                menuMusicAudio = sounds.menuMusic;
-                menuMusicAudio.loop = true;
-                menuMusicAudio.volume = 0.6;
-                menuMusicAudio.play().catch(e=>console.log);
-            }
-            startGameLoop();
-        }
-
-        // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
-        function playSound(soundKey) {
-            if(sounds[soundKey]) {
-                let snd = sounds[soundKey];
-                snd.currentTime = 0;
-                snd.play().catch(e=>console.log);
-            }
-        }
-
-        function stopMusic() {
-            if(currentMusic) {
-                currentMusic.pause();
-                currentMusic.currentTime = 0;
-            }
-        }
-
-        function playMusic(soundKey, loop=true) {
-            stopMusic();
-            if(sounds[soundKey]) {
-                currentMusic = sounds[soundKey];
-                currentMusic.loop = loop;
-                currentMusic.play().catch(e=>console.log);
-            }
-        }
-
-        // отрисовка меню
-        function drawMenu() {
-            ctx.drawImage(images.menuBg, 0, 0, canvas.width, canvas.height);
-            let btnX = canvas.width/2 - 75;
-            let btnY = canvas.height - 100;
-            ctx.drawImage(images.newGameBtnImg, btnX, btnY, 150, 50);
-            if(sunflowerUnlocked) {
-                ctx.drawImage(images.continueBtnImg, btnX, btnY-70, 150, 50);
-            }
-            // проверка кликов меню реализована в обработчике
-        }
-
-        function showPopup(popupId, imgKey, closeCallback) {
-            let popup = document.getElementById(popupId);
-            let img = popup.querySelector('img');
-            if(img && images[imgKey]) img.src = images[imgKey].src;
-            popup.style.visibility = 'visible';
-            let closeHandler = (e) => {
-                popup.style.visibility = 'hidden';
-                playSound('clickSound');
-                if(closeCallback) closeCallback();
-                popup.removeEventListener('click', closeHandler);
-                if(popupId === 'popupWarning' && document.getElementById('warningClose')) {
-                    document.getElementById('warningClose').removeEventListener('click', closeHandler);
-                }
-            };
-            popup.addEventListener('click', closeHandler);
-            if(popupId === 'popupWarning' && document.getElementById('warningClose')) {
-                document.getElementById('warningClose').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    closeHandler();
-                });
-            }
-        }
-
-        // начало выбора растений
-        function startNewGame() {
-            if(gameState === "menu") {
-                if(sunflowerUnlocked) {
-                    showPopup('popupConfirmReset', 'resetConfirmImg', () => {
-                        localStorage.removeItem('swill_unlocked');
-                        sunflowerUnlocked = false;
-                        location.reload();
-                    });
-                } else {
-            resetGameProgress();
-                }
-            }
-        }
-        function resetGameProgress() {
-            localStorage.removeItem('swill_unlocked');
-            sunflowerUnlocked = false;
-            // сброс всех параметров и перезапуск сцены
-            gameState = "selectPlants";
-            playSound('clickSound');
-            if(menuMusicAudio) { menuMusicAudio.pause(); menuMusicAudio.currentTime=0; }
-            playMusic('chooseMusic', true);
-            showPlantSelection = true;
-            selectedPlant = null;
-            // чистим боевые переменные
-            plants = [];
-            zombies = [];
-            projectiles = [];
-            sunDrops = [];
-            sunAmount = 100;
-            waveCount = 1;
-            waveIndex = 0;
-            waveRemaining = 0;
-            battleActive = false;
-            gameOver = false;
-            victoryPending = false;
-        }
-
-        function continueGame() {
-            showPopup('popupContinue', 'continueWindowImg', ()=>{});
-        }
-
-        function handleMenuClick(e) {
-            let rect = canvas.getBoundingClientRect();
-            let x = (e.clientX - rect.left) * (canvas.width/rect.width);
-            let y = (e.clientY - rect.top) * (canvas.height/rect.height);
-            let btnX = canvas.width/2 - 75;
-            let btnY = canvas.height - 100;
-            if(x>btnX && x<btnX+150 && y>btnY && y<btnY+50) {
-                startNewGame();
-                return;
-            }
-            if(sunflowerUnlocked) {
-                let contX = btnX, contY = btnY-70;
-                if(x>contX && x<contX+150 && y>contY && y<contY+50) {
-                    continueGame();
-                    return;
-                }
-            }
-        }
-
-        // сцена выбора растений
-        function drawSelectPlants() {
-            ctx.drawImage(images.roadBg, 0,0,canvas.width,canvas.height);
-            ctx.drawImage(images.plantSelectTable, canvas.width/2-200, canvas.height-150, 400, 120);
-            // иконка горохострела
-            let iconX = 40;
-            let iconY = canvas.height-130;
-            ctx.drawImage(images.peashooterIcon, iconX, iconY, 60,60);
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 20px monospace';
-            ctx.fillText("Горохострел 100☀️", iconX+70, iconY+35);
-            if(selectedPlant === 'peashooter') {
-                ctx.globalAlpha = 0.5;
-                ctx.fillStyle = 'black';
-                ctx.fillRect(iconX, iconY, 60,60);
-                ctx.globalAlpha=1;
-            }
-            // кнопка начала битвы
-            let startBtnY = canvas.height-50;
-            ctx.fillStyle = '#8b5a2b';
-            ctx.fillRect(canvas.width/2-120, startBtnY, 240, 40);
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 20px monospace';
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
-            ctx.strokeText("Начать Перестрелку", canvas.width/2-110, startBtnY+28);
-            ctx.fillText("Начать Перестрелку", canvas.width/2-110, startBtnY+28);
-        }
-
-        function handleSelectClick(e) {
-            let rect = canvas.getBoundingClientRect();
-            let x = (e.clientX - rect.left) * (canvas.width/rect.width);
-            let y = (e.clientY - rect.top) * (canvas.height/rect.height);
-            // клик по иконке горохострела
-            let iconX = 40, iconY = canvas.height-130;
-            if(x>iconX && x<iconX+60 && y>iconY && y<iconY+60) {
-                playSound('clickSound');
-                if(selectedPlant === 'peashooter') selectedPlant = null;
-                else selectedPlant = 'peashooter';
-                return;
-            }
-            // кнопка начать битву
-            let btnX = canvas.width/2-120, btnY=canvas.height-50;
-            if(x>btnX && x<btnX+240 && y>btnY && y<btnY+40) {
-                if(!selectedPlant) {
-                    showPopup('popupWarning', 'warningImg', null);
-                    return;
-                }
-                playSound('clickSound');
-                startBattle();
-            }
-        }
-
-        function startBattle() {
-            gameState = "battle";
-            showPlantSelection = false;
-            playMusic('battleStartVoice', false);
-            battleStartCountdown = 150; // 2.5сек анимация
-            battleActive = false;
-        }
-
-        function initBattleField() {
-            plants = [];
-            zombies = [];
-            projectiles = [];
-            sunDrops = [];
-            sunAmount = 100;
-            waveCount = 1;
-            waveIndex = 0;
-            waveRemaining = 0;
-            waveWaitTimer = 0;
-            waveCompleteFlag = false;
-            battleActive = true;
-            sunSpawnTimer = 0;
-            gameOver = false;
-            victoryPending = false;
-            spawnNextWave();
-        }
-
-        function spawnNextWave() {
-            if(waveIndex >= waveSequence.length) {
-                // победа
-                victorySequence();
-                return;
-            }
-            let waveData = waveSequence[waveIndex];
-            waveRemaining = waveData.count;
-            waveIndex++;
-            waveCount = waveIndex;
-            if(waveData.specialWave) {
-                waveWarningActive = true;
-                waveWarningTimer = 8.25*60;
-                playSound('thunderWave');
             } else {
-                for(let i=0;i<waveData.count;i++) spawnZombieOnRandomRow();
-                waveCompleteFlag = false;
+                playSfx('bgm-menu');
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('main-menu').style.display = 'flex';
             }
         }
+    };
 
-        function spawnZombieOnRandomRow() {
-            let row = Math.floor(Math.random() * rowCount);
-            zombies.push({
-                row: row,
-                x: zombieStartX,
-                y: rowsY[row]-30,
-                hp: 350,
-                width: 70,
-                height: 70,
-                eatingPlant: null,
-                eatTimer: 0,
-                img: images.zombieHare
-            });
-            playSound('zombieSpawnSound');
+    document.getElementById('start-btn').onclick = () => {
+        playSfx('sfx-click');
+        stopAudio('bgm-menu');
+        playSfx('bgm-seed');
+        document.getElementById('main-menu').style.display = 'none';
+        document.getElementById('seed-selection').style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('zombie-preview').style.opacity = 1;
+            setTimeout(() => {
+                document.getElementById('seed-box-container').style.bottom = '0';
+                document.getElementById('seed-pea').style.display = 'block';
+                document.getElementById('start-fight-btn').style.display = 'block';
+            }, 1000);
+        }, 2000);
+    };
+
+    document.getElementById('seed-pea').onclick = function() {
+        playSfx('sfx-click');
+        if(peaSelected) {
+            this.classList.remove('selected-seed');
+            peaSelected = false;
+        } else {
+            this.classList.add('selected-seed');
+            peaSelected = true;
         }
+    };
 
-        function victorySequence() {
-            if(victoryPending) return;
-            victoryPending = true;
-            battleActive = false;
-            playSound('victorySound');
-            // показать выпадение подсолнуха
-            victoryRewardItem = { x: canvas.width/2, y: canvas.height/2, img: images.sunflowerReward, blink: true };
-            victoryRewardTimer = 300;
+    document.getElementById('start-fight-btn').onclick = () => {
+        playSfx('sfx-click');
+        if(!peaSelected) {
+            document.getElementById('error-nopass').style.display = 'block';
+        } else {
+            document.getElementById('seed-box-container').style.bottom = '-100%';
+            setTimeout(() => {
+                stopAudio('bgm-seed');
+                document.getElementById('seed-selection').style.display = 'none';
+                initGame();
+            }, 1000);
         }
+    };
 
-        function updateGame() {
-            if(!battleActive || gameOver) return;
-            // солнце каждые 15 сек
-            if(sunSpawnTimer <=0) {
-                let randX = 100 + Math.random() * (canvas.width-200);
-                sunDrops.push({ x: randX, y: 30, targetY: 600, value: 25, collected: false, timer: 25*60 });
-                sunSpawnTimer = 15*60;
-            } else sunSpawnTimer--;
+    function closePopup(el) { playSfx('sfx-click'); el.style.display = 'none'; }
+    function closePopupAndReload(el) { playSfx('sfx-click'); el.style.display = 'none'; location.reload(); }
 
-            for(let i=0;i<sunDrops.length;i++) {
-                let s = sunDrops[i];
-                if(s.y < s.targetY) s.y += 1.2;
-                s.timer--;
-                if(s.timer<=0) sunDrops.splice(i,1);
+    function initGame() {
+        document.getElementById('game-screen').style.display = 'flex';
+        createGrid();
+        let txt = document.getElementById('ready-set-plant');
+        txt.style.display = 'block';
+        playSfx('sfx-ready');
+        setTimeout(()=>{txt.innerText = "1";}, 0);
+        setTimeout(()=>{txt.innerText = "2";}, 800);
+        setTimeout(()=>{txt.innerText = "3";}, 1600);
+        setTimeout(()=>{txt.innerText = "САЖАЙ!";}, 2400);
+        setTimeout(()=>{
+            txt.style.display = 'none';
+            document.getElementById('bgm-game').play();
+            startGameLoop();
+        }, 3000);
+    }
+
+    function createGrid() {
+        const grid = document.getElementById('grid');
+        for(let r=0; r<gridRows; r++){
+            for(let c=0; c<gridCols; c++){
+                let cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.onclick = (e) => placePlant(e, r, c);
+                grid.appendChild(cell);
+                cells.push({el: cell, r: r, c: c, plant: null});
             }
+        }
+    }
 
-            // зомби движение и атака
-            for(let i=0;i<zombies.length;i++) {
-                let z = zombies[i];
-                let plantHere = plants.find(p=>p.row===z.row && Math.abs(p.x - plantX)<30);
-                if(plantHere && !z.eatingPlant) {
-                    z.eatingPlant = plantHere;
-                    z.eatTimer = 4*60;
-                    playSound('eatingSound');
+    function updateSeedUI() {
+        const sb = document.getElementById('seed-bank');
+        if(suns < 100 || cooldownActive) sb.classList.add('not-enough-sun');
+        else sb.classList.remove('not-enough-sun');
+    }
+
+    document.getElementById('seed-bank').onclick = function() {
+        if(cooldownActive) return;
+        if(plantingMode) {
+            this.classList.remove('selected-seed');
+            plantingMode = false;
+        } else if(suns >= 100) {
+            playSfx('sfx-seed-pickup');
+            this.classList.add('selected-seed');
+            plantingMode = true;
+        }
+    }
+
+    function placePlant(e, r, c) {
+        if(!plantingMode) return;
+        let cellData = cells.find(idx => idx.r === r && idx.c === c);
+        if(!cellData.plant) {
+            playSfx('sfx-plant');
+            suns -= 100;
+            updateSunUI();
+            startCooldown();
+            plantingMode = false;
+            document.getElementById('seed-bank').classList.remove('selected-seed');
+
+            let plantEl = document.createElement('img');
+            plantEl.src = 'https://www.dropbox.com/scl/fi/mecjixahsxo2cls30upjj/Picsart_26-04-29_23-55-15-781.png?rlkey=zsjyqs640gb9544yf15utu1ln&st=rlqjkz5u&dl=1';
+            plantEl.className = 'plant';
+            cellData.el.appendChild(plantEl);
+            let pObj = { hp: 250, r: r, c: c, el: plantEl, lastShot: 0 };
+            cellData.plant = pObj;
+            plants.push(pObj);
+        }
+    }
+
+    function startCooldown() {
+        cooldownActive = true;
+        let overlay = document.getElementById('cooldown-overlay');
+        overlay.style.height = '100%';
+        updateSeedUI();
+        let start = Date.now();
+        let dur = 3000;
+        let inter = setInterval(() => {
+            let elapsed = Date.now() - start;
+            let per = 100 - (elapsed / dur * 100);
+            overlay.style.height = per + '%';
+            if(elapsed >= dur) {
+                clearInterval(inter);
+                overlay.style.height = '0%';
+                cooldownActive = false;
+                updateSeedUI();
+            }
+        }, 50);
+    }
+
+    function startGameLoop() {
+        gameActive = true;
+        setInterval(() => {
+            if(!gameActive) return;
+            spawnSun();
+        }, 5000);
+
+        setTimeout(() => {
+            playSfx('sfx-zombie-come');
+            spawnZombie();
+            let spawnInt = setInterval(() => {
+                if(!gameActive) { clearInterval(spawnInt); return; }
+                if(!waveTriggered) spawnZombie();
+            }, 8000);
+        }, 5000);
+
+        setTimeout(() => { if(gameActive) triggerWave(); }, 75000); // 1 минута 15 сек
+
+        setInterval(gameTick, 50);
+    }
+
+    function spawnSun() {
+        let sun = document.createElement('div');
+        sun.className = 'sun';
+        sun.style.left = (Math.random() * 80 + 10) + '%';
+        sun.style.top = '-60px';
+        document.getElementById('game-screen').appendChild(sun);
+        
+        let targetY = Math.random() * 60 + 20;
+        let currentY = -10;
+        let fall = setInterval(() => {
+            if(!gameActive) { clearInterval(fall); sun.remove(); return; }
+            currentY += 1;
+            sun.style.top = currentY + '%';
+            if(currentY >= targetY) clearInterval(fall);
+        }, 30);
+
+        sun.onclick = function() {
+            clearInterval(fall);
+            playSfx('sfx-sun');
+            this.classList.add('sun-collecting');
+            this.style.left = '10px';
+            this.style.top = '10px';
+            this.style.width = '20px';
+            this.style.height = '20px';
+            setTimeout(() => {
+                suns += 50;
+                updateSunUI();
+                this.remove();
+            }, 500);
+        };
+        setTimeout(() => { if(sun.parentNode) sun.remove(); }, 10000);
+    }
+
+    function updateSunUI() { 
+        document.getElementById('sun-counter').innerText = `Количество Солнц: ${suns}`; 
+        updateSeedUI();
+    }
+
+    function spawnZombie() {
+        if(!gameActive) return;
+        let row = Math.floor(Math.random() * 5);
+        let zEl = document.createElement('div');
+        zEl.className = 'zombie';
+        zEl.style.top = (10 + row * 18) + '%';
+        zEl.style.left = '105%';
+        document.getElementById('game-screen').appendChild(zEl);
+        zombies.push({ hp: 330, r: row, el: zEl, x: 105, eating: false, target: null });
+    }
+
+    function triggerWave() {
+        waveTriggered = true;
+        playSfx('sfx-wave');
+        let wText = document.getElementById('wave-warning');
+        wText.style.display = 'block';
+        setTimeout(()=> wText.style.transform = 'scale(1)', 100);
+        setTimeout(() => {
+            wText.style.display = 'none';
+            for(let i=0; i<8; i++) setTimeout(spawnZombie, i * 500);
+        }, 5000);
+    }
+
+    function gameTick() {
+        if(!gameActive) return;
+        let now = Date.now();
+
+        plants.forEach(p => {
+            if(p.hp <= 0) return;
+            let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
+            if(hasZ && now - p.lastShot > 2500) {
+                p.lastShot = now;
+                shootPea(p);
+            }
+        });
+
+        zombies.forEach(z => {
+            if(z.hp <= 0) return;
+            let pX = 15 + (Math.floor((z.x - 15) / 17)) * 17;
+            let cell = cells.find(c => c.r === z.r && (15 + c.c * 17) >= z.x - 10 && (15 + c.c * 17) <= z.x);
+            
+            if(cell && cell.plant && cell.plant.hp > 0) {
+                if(!z.eating) {
+                    z.eating = true;
+                    z.target = cell.plant;
+                    playSfx('sfx-eat');
                 }
-                if(z.eatingPlant) {
-                    z.eatTimer--;
-                    if(z.eatTimer<=0) {
-                        let idx = plants.indexOf(z.eatingPlant);
-                        if(idx!==-1) plants.splice(idx,1);
-                        z.eatingPlant = null;
-                    }
-                } else {
-                    z.x -= 1.2;
+                z.target.hp -= 1.5;
+                z.target.el.style.filter = (now % 200 < 100) ? 'brightness(3)' : 'brightness(1)';
+                
+                if(z.target.hp <= 0) {
+                    let deadPlant = z.target;
+                    deadPlant.el.style.filter = 'brightness(10)';
+                    deadPlant.el.style.transition = 'all 0.5s';
+                    deadPlant.el.style.opacity = '0';
+                    deadPlant.el.style.transform = 'translateY(-20px)';
+                    setTimeout(() => deadPlant.el.remove(), 500);
+                    cell.plant = null;
+                    z.eating = false;
+                    stopAudio('sfx-eat');
                 }
-                if(z.x < houseX) { gameOver=true; battleActive=false; playSound('loseSound'); showPopup('popupLose', 'loseWindowImg', ()=>{ location.reload(); }); return; }
-            }
-            // стрельба растений
-            for(let p of plants) {
-                if(!p.shootCooldown) p.shootCooldown=0;
-                if(p.shootCooldown<=0) {
-                    let targetZombie = zombies.find(z=>z.row===p.row && z.x>p.x);
-                    if(targetZombie) {
-                        projectiles.push({ row: p.row, x: p.x+40, y: p.y+30, dmg:20, img: images.peaProjectile });
-                        p.shootCooldown = 2*60;
-                    }
-                } else p.shootCooldown--;
-            }
-            for(let i=0;i<projectiles.length;i++) {
-                let proj = projectiles[i];
-                proj.x += 8;
-                let hitIdx = zombies.findIndex(z=>z.row===proj.row && Math.abs(z.x-proj.x)<40);
-                if(hitIdx!==-1) {
-                    zombies[hitIdx].hp -= proj.dmg;
-                    projectiles.splice(i,1);
-                    if(zombies[hitIdx].hp<=0) {
-                        let dead = zombies.splice(hitIdx,1)[0];
-                        waveRemaining--;
-                        if(waveRemaining===0 && !waveWarningActive) {
-                            let waveData = waveSequence[waveIndex-1];
-                            if(waveData.delayAfterKill) {
-                                waveWaitTimer = waveData.delayAfterKill * 60;
-                            }
-                        }
-                    }
-                    continue;
+            } else {
+                if(z.eating) { 
+                    z.eating = false; 
+                    stopAudio('sfx-eat'); 
+                    if(z.target) z.target.el.style.filter = 'brightness(1)';
                 }
-                if(proj.x>canvas.width) projectiles.splice(i,1);
+                z.x -= (100 / (32000 / 50));
+                z.el.style.left = z.x + '%';
             }
-            if(waveWaitTimer>0) {
-                waveWaitTimer--;
-                if(waveWaitTimer===0) spawnNextWave();
-            }
-            if(waveWarningActive) {
-                waveWarningTimer--;
-                if(waveWarningTimer<=0) {
-                    waveWarningActive=false;
-                    // большая волна 6 зомби (по два на некоторых рядах)
-                    for(let i=0;i<6;i++) spawnZombieOnRandomRow();
-                    waveRemaining = 6;
-                }
-            }
-        }
 
-        function drawBattle() {
-            ctx.drawImage(images.roadBg,0,0,canvas.width,canvas.height);
-            for(let p of plants) {
-                ctx.drawImage(images.peashooterPlanted, p.x, p.y, 60,60);
+            if(z.x <= 5) {
+                gameActive = false;
+                stopAllSounds();
+                playSfx('sfx-lose');
+                document.getElementById('lose-screen').style.display = 'block';
             }
-            for(let z of zombies) {
-                ctx.drawImage(z.img, z.x, z.y, 70,70);
-            }
-            for(let proj of projectiles) {
-                ctx.drawImage(proj.img, proj.x, proj.y, 20,20);
-            }
-            for(let s of sunDrops) {
-                ctx.drawImage(images.sunIcon, s.x, s.y, 40,40);
-            }
-            // интерфейс
-            ctx.fillStyle = '#654321';
-            ctx.fillRect(0,0,canvas.width,50);
-            ctx.fillStyle='white';
-            ctx.font='bold 20px monospace';
-            ctx.fillText(`Количество Солнц — ${sunAmount}`, 20, 35);
-            ctx.fillText(`${waveCount} Этап — День`, canvas.width-200, 35);
-            ctx.fillText(`Количество Волн: ${waveIndex}`, canvas.width-200, 70);
-            // иконка семени
-            ctx.drawImage(images.seedSlotIcon, 20, 55, 40,40);
-            if(selectedPlant==='peashooter') ctx.globalAlpha=0.5;
-            ctx.drawImage(images.peashooterIcon,20,55,40,40);
-            ctx.globalAlpha=1;
-        }
+        });
 
-        function handleBattleClick(e) {
-            if(!battleActive || gameOver) return;
-            let rect = canvas.getBoundingClientRect();
-            let x = (e.clientX - rect.left)*(canvas.width/rect.width);
-            let y = (e.clientY - rect.top)*(canvas.height/rect.height);
-            // клик по солнцу
-            for(let i=0;i<sunDrops.length;i++) {
-                let s = sunDrops[i];
-                if(x>s.x && x<s.x+40 && y>s.y && y<s.y+40) {
-                    playSound('sunPickup');
-                    sunAmount += s.value;
-                    sunDrops.splice(i,1);
-                    return;
+        if(waveTriggered && zombies.every(z => z.hp <= 0)) {
+            gameActive = false;
+            let winSeed = document.getElementById('win-seed');
+            winSeed.style.display = 'block';
+            winSeed.onclick = () => {
+                winSeed.style.display = 'none';
+                stopAudio('bgm-game');
+                playSfx('sfx-win');
+                document.getElementById('white-fade').style.opacity = 1;
+                localStorage.setItem('pvz_demo_beaten', 'true');
+                setTimeout(() => location.reload(), 3000);
+            };
+        }
+    }
+
+    function shootPea(p) {
+        let pea = document.createElement('div');
+        pea.className = 'pea-projectile';
+        pea.style.top = (12 + p.r * 18) + '%';
+        let px = 20 + p.c * 17;
+        pea.style.left = px + '%';
+        document.getElementById('game-screen').appendChild(pea);
+
+        let move = setInterval(() => {
+            if(!gameActive) { pea.remove(); clearInterval(move); return; }
+            px += 2;
+            pea.style.left = px + '%';
+            
+            let hitZ = zombies.find(z => z.hp > 0 && z.r === p.r && px >= z.x && px <= z.x + 5);
+            if(hitZ) {
+                clearInterval(move);
+                pea.remove();
+                playSfx('sfx-hit');
+                hitZ.hp -= 30;
+                hitZ.el.classList.add('hit');
+                setTimeout(() => hitZ.el.classList.remove('hit'), 200);
+                
+                if(hitZ.hp <= 0) {
+                    hitZ.el.classList.add('dying');
+                    if(hitZ.eating) stopAudio('sfx-eat');
+                    setTimeout(() => hitZ.el.remove(), 500);
                 }
             }
-            // клик по семени
-            if(x>20 && x<60 && y>55 && y<95) {
-                playSound('seedSelectSound');
-                if(selectedPlant==='peashooter') selectedPlant=null;
-                else selectedPlant='peashooter';
-                return;
-            }
-            // посадка на клетку (невидимые зоны)
-            if(selectedPlant === 'peashooter' && sunAmount >= 100) {
-                for(let r=0;r<rowCount;r++) {
-                    let rowY = rowsY[r];
-                    if(y>rowY-30 && y<rowY+40 && x>plantX-30 && x<plantX+90) {
-                        let already = plants.find(p=>p.row===r);
-                        if(!already) {
-                            playSound('plantSound');
-                            plants.push({ row:r, x:plantX, y:rowY-20, hp:100, shootCooldown:0, img:images.peashooterPlanted });
-                            sunAmount -= 100;
-                            selectedPlant=null;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        // главный рендер
-        function render() {
-            if(gameState === "loading") drawLoadingScreen();
-            else if(gameState === "menu") drawMenu();
-            else if(gameState === "selectPlants") drawSelectPlants();
-            else if(gameState === "battle") {
-                if(battleStartCountdown>0) {
-                    ctx.fillStyle='black';
-                    ctx.fillRect(0,0,canvas.width,canvas.height);
-                    ctx.fillStyle='white';
-                    ctx.font='bold 32px monospace';
-                    ctx.fillText('1... 2... 3... САЖАЙ!', canvas.width/2-150,canvas.height/2);
-                    battleStartCountdown--;
-                    if(battleStartCountdown<=0) initBattleField();
-                } else {
-                    updateGame();
-                    drawBattle();
-                    if(victoryPending && victoryRewardTimer>0) {
-                        ctx.globalAlpha=0.8;
-                        ctx.drawImage(victoryRewardItem.img, victoryRewardItem.x-40, victoryRewardItem.y-40, 80,80);
-                        ctx.globalAlpha=1;
-                        victoryRewardTimer--;
-                        if(victoryRewardTimer===0) {
-                            // разблокировка подсолнуха и перезагрузка
-                            localStorage.setItem('swill_unlocked','true');
-                            sunflowerUnlocked=true;
-                            location.reload();
-                        }
-                    }
-                }
-            }
-        }
-
-        function gameLoop() {
-            render();
-            requestAnimationFrame(gameLoop);
-        }
-
-        function startGameLoop() {
-            gameLoop();
-            canvas.addEventListener('click', (e) => {
-                if(gameState==="menu") handleMenuClick(e);
-                else if(gameState==="selectPlants") handleSelectClick(e);
-                else if(gameState==="battle" && battleActive && !gameOver) handleBattleClick(e);
-            });
-        }
-
-        // проверка сохраненного подсолнуха
-        if(localStorage.getItem('swill_unlocked') === 'true') sunflowerUnlocked = true;
-        loadAllResources();
-    })();
+            if(px > 110) { clearInterval(move); pea.remove(); }
+        }, 30);
+    }
 </script>
 </body>
 </html>
