@@ -17,13 +17,13 @@
         #loading-screen { display: flex; color: white; text-align: center; }
         
         @keyframes blink { 0%, 100% {opacity: 1;} 50% {opacity: 0;} }
-        @keyframes whiteFlash { 0% { filter: brightness(1); } 50% { filter: brightness(3) white; } 100% { filter: brightness(1); } }
         @keyframes ghostOut { from { opacity: 1; filter: brightness(10); } to { opacity: 0; transform: translateY(-20px); } }
         
         .blinking { animation: blink 1s infinite; color: red; font-weight: bold; margin: 20px;}
         
+        /* ФИКС 3: Сплющенное меню для мобилок */
         #main-menu {
-            background: url('https://www.dropbox.com/scl/fi/0weoum0ee37vr2mh64yye/Picsart_26-04-21_12-16-41-162.jpg?rlkey=g5sz7jmrxingo606mrwimpr3h&st=8b84e0uy&dl=1') no-repeat center/cover;
+            background: url('https://www.dropbox.com/scl/fi/0weoum0ee37vr2mh64yye/Picsart_26-04-21_12-16-41-162.jpg?rlkey=g5sz7jmrxingo606mrwimpr3h&st=8b84e0uy&dl=1') no-repeat center/100% 100%;
         }
         #start-btn { position: absolute; bottom: 5%; width: 50%; max-width: 200px; cursor: pointer;}
 
@@ -31,7 +31,9 @@
         #zombie-preview { width: 100%; height: 100%; opacity: 0; transition: opacity 1s; position: absolute; object-fit: cover; z-index: 1;}
         #seed-box-container { position: absolute; bottom: -100%; width: 100%; height: 100%; transition: bottom 0.5s; z-index: 2; pointer-events: none;}
         #seed-box { width: 100%; position: absolute; bottom: 0; pointer-events: auto;}
-        #seed-pea { position: absolute; bottom: 15%; left: 10%; width: 20%; z-index: 3; pointer-events: auto; transition: filter 0.2s;} 
+        
+        /* ФИКС 4: Иконка гороха выше */
+        #seed-pea { position: absolute; bottom: 22%; left: 10%; width: 20%; z-index: 3; pointer-events: auto; transition: filter 0.2s;} 
         #start-fight-btn { position: absolute; bottom: 5%; left: 30%; width: 40%; z-index: 3; pointer-events: auto;}
         
         .selected-seed { filter: brightness(0.3) opacity(0.8) !important; }
@@ -52,7 +54,8 @@
         }
         #level-info { background: darkblue; color: white; border: 1px solid black; padding: 5px; margin: 5px; font-size: 12px; text-align:right;}
         
-        #seed-bank-wrapper { position: absolute; left: 10px; top: 40px; width: 60px; height: 80px; overflow: hidden; }
+        /* ФИКС 1: Семена ниже счетчика */
+        #seed-bank-wrapper { position: absolute; left: 10px; top: 50px; width: 60px; height: 80px; overflow: hidden; z-index: 20;}
         #seed-bank { width: 100%; cursor: pointer; }
         #cooldown-overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 0%; 
@@ -170,7 +173,6 @@
     const stopAudio = (id) => { let a = document.getElementById(id); if(a){a.pause(); a.currentTime=0;} }
     const stopAllSounds = () => { document.querySelectorAll('audio').forEach(a => {a.pause(); a.currentTime=0;}); }
 
-    // Система загрузки
     let loadPercent = 0;
     let loadInterval = setInterval(() => {
         loadPercent += 10;
@@ -349,7 +351,7 @@
             }, 8000);
         }, 5000);
 
-        setTimeout(() => { if(gameActive) triggerWave(); }, 75000); // 1 минута 15 сек
+        setTimeout(() => { if(gameActive) triggerWave(); }, 75000); 
 
         setInterval(gameTick, 50);
     }
@@ -430,7 +432,6 @@
 
         zombies.forEach(z => {
             if(z.hp <= 0) return;
-            let pX = 15 + (Math.floor((z.x - 15) / 17)) * 17;
             let cell = cells.find(c => c.r === z.r && (15 + c.c * 17) >= z.x - 10 && (15 + c.c * 17) <= z.x);
             
             if(cell && cell.plant && cell.plant.hp > 0) {
@@ -457,7 +458,8 @@
                 if(z.eating) { 
                     z.eating = false; 
                     stopAudio('sfx-eat'); 
-                    if(z.target) z.target.el.style.filter = 'brightness(1)';
+                    /* ФИКС 2: Возвращаем нормальный вид растению, если зомби ушел/умер */
+                    if(z.target && z.target.el) z.target.el.style.filter = 'brightness(1)';
                 }
                 z.x -= (100 / (32000 / 50));
                 z.el.style.left = z.x + '%';
@@ -471,7 +473,7 @@
             }
         });
 
-        if(waveTriggered && zombies.every(z => z.hp <= 0)) {
+        if(waveTriggered && zombies.length > 0 && zombies.every(z => z.hp <= 0)) {
             gameActive = false;
             let winSeed = document.getElementById('win-seed');
             winSeed.style.display = 'block';
@@ -510,7 +512,10 @@
                 
                 if(hitZ.hp <= 0) {
                     hitZ.el.classList.add('dying');
-                    if(hitZ.eating) stopAudio('sfx-eat');
+                    if(hitZ.eating) {
+                        stopAudio('sfx-eat');
+                        if(hitZ.target && hitZ.target.el) hitZ.target.el.style.filter = 'brightness(1)';
+                    }
                     setTimeout(() => hitZ.el.remove(), 500);
                 }
             }
