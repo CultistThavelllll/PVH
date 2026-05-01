@@ -553,7 +553,8 @@
                 let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
                 if(hasZ && now - p.lastBlade > 23000) { 
                     p.lastBlade = now;
-                    playSfx('sfx-blade-throw'); // ВОТ ТУТ ОН СРАБОТАЕТ!
+                    // ЗВУК ВЫЗЫВАЕТСЯ ЗДЕСЬ ПРИ БРОСКЕ
+                    playSfx('sfx-blade-throw');
                     shootProjectile(p, 'blade', 150);
                 }
             }
