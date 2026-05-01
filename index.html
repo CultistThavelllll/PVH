@@ -115,7 +115,7 @@
 <audio id="sfx-win" src="https://www.dropbox.com/scl/fi/5oldgcoeslosozsidjz6u/pvz-victory.mp3?rlkey=4t7bqnw8blr99um20ashag9zv&st=wij1q135&dl=1"></audio>
 <audio id="sfx-lose" src="https://www.dropbox.com/scl/fi/diy2iftqbr39tgu16a7a0/the-zombies-ate-your-brains-plants-vs-zombies-made-with-Voicemod.mp3?rlkey=njzpulqfo43hbd4bdt1gctosf&st=00wqy5h3&dl=1"></audio>
 
-<audio id="sfx-blade-throw" src="https://www.dropbox.com/scl/fi/ely9q114fl92ro88v1c13/2_5449863879972660199.mp3?rlkey=fgtujm7poih64xsv04itc3qfc&st=jtptxkq1&dl=1"></audio>
+<audio id="sfx-blade-throw" src="https://www.dropbox.com/scl/fi/8uk4svj4tdu0wu5myydrh/2_5352857319128475189.ogg?rlkey=kef4s7msnij03wco71tfenajs&st=akl2jwsr&dl=1"></audio>
 <audio id="sfx-blade-hit" src="https://www.dropbox.com/scl/fi/nyxdomhgn4agee9yraabn/2_5449863879972660204.mp3?rlkey=rjl1dqz6q9t0kh0ks0ld1lxe0&st=0asosuq4&dl=1"></audio>
 <audio id="sfx-blade-finish" src="https://www.dropbox.com/scl/fi/cjfoxlm1tobyv0c0wgxv7/2_5449863879972660201.mp3?rlkey=t5ic45z54blmi1rmb42j4upch&st=u1aczp0s&dl=1"></audio>
 <audio id="sfx-explode" src="https://www.dropbox.com/scl/fi/8oc8ulfd02g3aknmst1ae/pvz-cherrybomb.mp3?rlkey=hbj3bj6yfxdq5gf8rm0gwvflq&st=zub9t1d4&dl=1"></audio>
@@ -486,7 +486,6 @@
         let speedMult = 1;
         let img = 'https://www.dropbox.com/scl/fi/o7gsnni0d6jhvjqa1xjmw/Picsart_26-04-29_23-54-32-866.png?rlkey=bpg3zl4gmwi9r8nhlcvbi3ilh&st=dxvn5on9&dl=1';
         
-        // ФИКС БАЛАНСА 2 УРОВНЯ: Военные имеют 460 HP и спавнятся реже
         if(currentLevel >= 2 && levelTime > 40000 && Math.random() < 0.25) {
             zType = 'military'; hp = 460; 
             img = 'https://www.dropbox.com/scl/fi/vn4zyqswt1ir93kpwmza0/Picsart_26-04-30_20-05-08-683.png?rlkey=mnl9cre4m5p4dik5vesv0l2s3&st=h4z6q5n6&dl=1';
@@ -554,7 +553,7 @@
                 let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
                 if(hasZ && now - p.lastBlade > 23000) { 
                     p.lastBlade = now;
-                    playSfx('sfx-blade-throw');
+                    playSfx('sfx-blade-throw'); // ВОТ ТУТ ОН СРАБОТАЕТ!
                     shootProjectile(p, 'blade', 150);
                 }
             }
@@ -573,7 +572,6 @@
                 
                 let dmg = (z.target.type === 'nut') ? 4.16 : 1.5;
                 z.target.hp -= dmg;
-                // ФИКС: Мигание ТОЛЬКО во время атаки
                 z.target.el.style.filter = (now % 200 < 100) ? 'brightness(1.5)' : 'brightness(1)';
                 
                 if(z.target.hp <= 0) {
