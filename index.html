@@ -519,7 +519,7 @@
         wText.style.display = 'block';
         setTimeout(()=> wText.style.transform = 'scale(1)', 100);
         
-        let zombieCount = (wavesTriggered === 1) ? 10 : 25;
+        let zombieCount = (wavesTriggered === 1) ? 10 : 15;
 
         setTimeout(() => {
             wText.style.display = 'none';
@@ -553,7 +553,6 @@
                 let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
                 if(hasZ && now - p.lastBlade > 23000) { 
                     p.lastBlade = now;
-                    // ЗВУК ВЫЗЫВАЕТСЯ ЗДЕСЬ ПРИ БРОСКЕ
                     playSfx('sfx-blade-throw');
                     shootProjectile(p, 'blade', 150);
                 }
@@ -608,7 +607,7 @@
                 if(z.eating) { 
                    z.eating = false; 
                    updateEatingSound(); 
-                   if(z.target && z.target.el) z.target.el.style.filter = 'brightness(1)'; 
+                   if(z.target && z.target.el) { z.target.el.style.filter = 'brightness(1)'; z.target = null; } 
                 }
                 z.x -= z.dx; z.el.style.left = z.x + '%';
             }
