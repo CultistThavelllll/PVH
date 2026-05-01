@@ -70,7 +70,7 @@
             transition: left 0.1s linear, filter 0.2s; pointer-events: none;
             z-index: 6;
         }
-        .zombie.dying { animation: ghostOut 0.5s forwards !important; }
+        .zombie.dying { animation: ghostOut 0.5s forwards; }
         .zombie.hit { filter: brightness(3); }
 
         .pea-projectile { width: 35px; height: 35px; background: url('https://www.dropbox.com/scl/fi/ouqp81ohu2to1ajb8mpiw/Picsart_26-04-30_12-00-03-005.png?rlkey=rz4rc5m2eunj76ucz6lt80quy&st=7asm32b7&dl=1') no-repeat center/contain; position: absolute; z-index: 5; margin-top: -10px;}
@@ -109,7 +109,7 @@
 <audio id="sfx-plant" src="https://www.dropbox.com/scl/fi/6fi6gjjlcjx9vdgg2981z/plants-vs-zombies-planting-sound-2.mp3?rlkey=zd898mwjy9ipku7x5eibsllnx&st=xdja7565&dl=1"></audio>
 <audio id="sfx-sun" src="https://www.dropbox.com/scl/fi/noqzytc2p3sbcujppc2vd/plants-vs-zombies-sun-pickup.mp3?rlkey=4ba9jewr8al2vayjbbseu4s58&st=bbkj97sf&dl=1"></audio>
 <audio id="sfx-hit" src="https://www.dropbox.com/scl/fi/djhpyld3zizkx2m38t2be/plants-vs-zombies-hit-2.mp3?rlkey=82lx2fgtt27lrhiewprcnj2jc&st=usugyt74&dl=1"></audio>
-<audio id="sfx-eat" src="https://www.dropbox.com/scl/fi/6jyexllg84qsn0egd144a/plants-vs-zombies-eating-for-1-minute-straight.mp3?rlkey=zs106zj8jdjouwxnuno5naizv&st=1dm6hbrr&dl=1" loop></audio>
+<audio id="sfx-eat" src="https://www.dropbox.com/scl/fi/6jyexllg84qsn0egd144a/plants-vs-zombies-eating-for-1-minute-straight.mp3?rlkey=zs106zj8jdjouwxnuno5naizv&st=1dm6hbrr&dl=1"></audio>
 <audio id="sfx-zombie-come" src="https://www.dropbox.com/scl/fi/gnq5dgwz76c4du7lc6cud/2_5422779880628592419.ogg?rlkey=tb0tlsqnat1yrfbgp2uezabg2&st=i1gkp7cb&dl=1"></audio>
 <audio id="sfx-wave" src="https://www.dropbox.com/scl/fi/2oe0tcfzawayneoesv5nb/plants-vs-zombies-wave.mp3?rlkey=cmmwhp8frh7w02jm0u5pyz6jf&st=fgnabjjr&dl=1"></audio>
 <audio id="sfx-win" src="https://www.dropbox.com/scl/fi/5oldgcoeslosozsidjz6u/pvz-victory.mp3?rlkey=4t7bqnw8blr99um20ashag9zv&st=wij1q135&dl=1"></audio>
@@ -139,7 +139,7 @@
     <div id="seed-box-container">
         <img id="seed-box" src="https://www.dropbox.com/scl/fi/45jbnhoiza0ormmnoqi0x/Picsart_26-04-30_00-08-05-508.png?rlkey=f3mkqmna2c5iaa6uf6zs55o19&st=dqm9lvk1&dl=1">
         
-        <img id="seed-pea" class="seed-icon-select" src="https://www.dropbox.com/scl/fi/1b08fandqm30ib5nc2ma1/Picsart_26-04-29_23-47-11-140.png?rlkey=f2hqhaxuvbh30c5kceubou2dr&st=ehkv0jaq&dl=1" style="display:none;">
+        <img id="seed-pea" class="seed-icon-select" src="https://www.dropbox.com/scl/fi/1b08fandqm30ib5nc2ma1/Picsart_26-04-29_23-47-11-140.png?rlkey=f2hqhaxuvbh30c5ceubou2dr&st=ehkv0jaq&dl=1" style="display:none;">
         <img id="seed-sunflower" class="seed-icon-select" src="https://www.dropbox.com/scl/fi/94ixo4rnm687xqsf5qu2q/Picsart_26-04-29_23-48-27-973.png?rlkey=a1s95150lhm2kyatcmom9t8dj&st=t8k68sig&dl=1">
         <img id="seed-nut" class="seed-icon-select" src="https://www.dropbox.com/scl/fi/rxbxa8npw46gifa3vaihy/Picsart_26-04-30_20-27-18-541.png?rlkey=sipsu89aq29zjrioxnqh3rhdd&st=4w6gblau&dl=1">
 
@@ -156,14 +156,14 @@
     </div>
     <div id="seed-bank-wrapper">
         <div class="seed-bank-slot" id="slot-pea" data-plant="pea" data-cost="100" data-cd="3000">
-            <img src="https://www.dropbox.com/scl/fi/1b08fandqm30ib5nc2ma1/Picsart_26-04-29_23-47-11-140.png?rlkey=f2hqhaxuvbh30c5kceubou2dr&st=m1o0g8ma&dl=1">
+            <img src="https://www.dropbox.com/scl/fi/1b08fandqm30ib5nc2ma1/Picsart_26-04-29_23-47-11-140.png?rlkey=f2hqhaxuvbh30c5ceubou2dr&st=m1o0g8ma&dl=1">
             <div class="cooldown-overlay" id="cd-pea"></div>
         </div>
         <div class="seed-bank-slot" id="slot-sunflower" data-plant="sunflower" data-cost="50" data-cd="4000" style="display:none;">
             <img src="https://www.dropbox.com/scl/fi/94ixo4rnm687xqsf5qu2q/Picsart_26-04-29_23-48-27-973.png?rlkey=a1s95150lhm2kyatcmom9t8dj&st=t8k68sig&dl=1">
             <div class="cooldown-overlay" id="cd-sunflower"></div>
         </div>
-        <div class="seed-bank-slot" id="slot-nut" data-plant="nut" data-cost="75" data-cd="20000" style="display:none;">
+        <div class="seed-bank-slot" id="slot-nut" data-plant="nut" data-cost="75" data-cd="40000" style="display:none;">
             <img src="https://www.dropbox.com/scl/fi/rxbxa8npw46gifa3vaihy/Picsart_26-04-30_20-27-18-541.png?rlkey=sipsu89aq29zjrioxnqh3rhdd&st=4w6gblau&dl=1">
             <div class="cooldown-overlay" id="cd-nut"></div>
         </div>
@@ -200,12 +200,11 @@
     let wavesTriggered = 0;
     let totalWaves = (currentLevel === 1) ? 1 : 2;
     let zombieSoundPlayed = false;
-    let waveSpawning = false; 
     
     let plantData = {
         'pea': { cost: 100, cd: 3000, img: 'https://www.dropbox.com/scl/fi/mecjixahsxo2cls30upjj/Picsart_26-04-29_23-55-15-781.png?rlkey=zsjyqs640gb9544yf15utu1ln&st=rlqjkz5u&dl=1', hp: 250 },
         'sunflower': { cost: 50, cd: 4000, img: 'https://www.dropbox.com/scl/fi/au1twfcjyujwcz7uj7j60/Picsart_26-04-30_13-45-19-968.png?rlkey=t4qqfip4jm3h6ul43lopd1mej&st=phat674f&dl=1', hp: 250 },
-        'nut': { cost: 75, cd: 20000, img: 'https://www.dropbox.com/scl/fi/61qa0ggr22dnccvgpft97/Picsart_26-04-30_13-50-35-039.png?rlkey=jkxxaz2zpy83oqz0ri7i1py33&st=ohrwftb8&dl=1', hp: 5000 } 
+        'nut': { cost: 75, cd: 40000, img: 'https://www.dropbox.com/scl/fi/61qa0ggr22dnccvgpft97/Picsart_26-04-30_13-50-35-039.png?rlkey=jkxxaz2zpy83oqz0ri7i1py33&st=ohrwftb8&dl=1', hp: 9000 }
     };
     
     let cooldowns = { 'pea': false, 'sunflower': false, 'nut': false };
@@ -381,7 +380,7 @@
             plantEl.src = pD.img;
             plantEl.className = 'plant';
             cellData.el.appendChild(plantEl);
-            let pObj = { type: selectedPlantType, hp: pD.hp, r: r, c: c, el: plantEl, lastAction: Date.now(), lastSun: Date.now(), lastBlade: Date.now() };
+            let pObj = { type: selectedPlantType, hp: pD.hp, r: r, c: c, el: plantEl, lastAction: Date.now(), lastSunAction: Date.now() };
             cellData.plant = pObj;
             plants.push(pObj);
         }
@@ -426,7 +425,7 @@
             if(levelTime > 8000 && levelTime % 120000 === 0 && wavesTriggered < totalWaves) {
                 triggerWave();
             }
-            if(levelTime > 8000 && levelTime % 15000 === 0 && wavesTriggered < totalWaves && !waveSpawning) {
+            if(levelTime > 8000 && levelTime % 8000 === 0 && wavesTriggered < totalWaves) {
                 spawnZombieRandom();
             }
         }, 50);
@@ -498,31 +497,20 @@
 
     function triggerWave() {
         wavesTriggered++;
-        waveSpawning = true; 
-        document.getElementById('wave-count').innerText = totalWaves - wavesTriggered;
+        document.getElementById('wave-count').innerText = Math.max(0, totalWaves - wavesTriggered);
         playSfx('sfx-wave');
         let wText = document.getElementById('wave-warning');
         wText.style.display = 'block';
-        wText.style.transform = 'scale(0.1)';
         setTimeout(()=> wText.style.transform = 'scale(1)', 100);
         setTimeout(() => {
             wText.style.display = 'none';
-            let count = currentLevel * 5 + 5; 
-            for(let i=0; i < count; i++) {
-                setTimeout(() => {
-                    spawnZombieRandom();
-                    if(i === count - 1) waveSpawning = false; 
-                }, i * 400);
-            }
+            for(let i=0; i<8; i++) setTimeout(spawnZombieRandom, i * 500);
         }, 5000);
     }
 
     function gameTick() {
         if(!gameActive) return;
         let now = Date.now();
-        
-        let anyoneEating = false;
-
         plants.forEach(p => {
             if(p.hp <= 0) return;
             if(p.type === 'pea') {
@@ -532,39 +520,35 @@
                     shootProjectile(p, 'pea', 30);
                 }
             } else if(p.type === 'sunflower') {
-                if(now - p.lastSun > 25000) { 
-                    p.lastSun = now;
+                if(now - p.lastSunAction > 25000) {
+                    p.lastSunAction = now;
                     p.el.style.opacity = 0.5;
                     setTimeout(() => p.el.style.opacity = 1, 1000);
                     spawnSun(18 + p.c * 17, 15 + p.r * 18, 50);
                 }
-                let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
-                if(hasZ && now - p.lastBlade > 30000) { 
-                    p.lastBlade = now;
-                    playSfx('sfx-blade-throw');
-                    shootProjectile(p, 'blade', 150);
+                if(now - p.lastAction > 30000) {
+                    p.lastAction = now;
+                    let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
+                    if(hasZ) {
+                        playSfx('sfx-blade-throw');
+                        shootProjectile(p, 'blade', 150);
+                    }
                 }
             }
         });
-
         zombies.forEach(z => {
             if(z.hp <= 0) return;
             let cell = cells.find(c => c.r === z.r && (15 + c.c * 17) >= z.x - 10 && (15 + c.c * 17) <= z.x);
-            
             if(z.type === 'vaulter' && z.state === 'run' && cell && cell.plant && cell.plant.hp > 0) {
                 playSfx('sfx-jump'); z.state = 'walk'; z.dx = (100 / (35000 / 50));
                 z.el.style.backgroundImage = `url('https://www.dropbox.com/scl/fi/sdi881cq9rtz3vzremtql/Picsart_26-04-30_20-40-14-868.png?rlkey=kwmxc61ugyhp47ma6n9q6lls1&st=ty0tcw20&dl=1')`;
                 z.x -= 15; return;
             }
-
             if(cell && cell.plant && cell.plant.hp > 0) {
-                anyoneEating = true;
-                if(!z.eating) { z.eating = true; z.target = cell.plant; }
-                
-                let dmg = (z.target.type === 'nut') ? 4.16 : 1.5;
+                if(!z.eating) { z.eating = true; z.target = cell.plant; playSfx('sfx-eat'); }
+                let dmg = (z.target.type === 'nut') ? 12 : 1.5;
                 z.target.hp -= dmg;
                 z.target.el.style.filter = (now % 200 < 100) ? 'brightness(3)' : 'brightness(1)';
-                
                 if(z.target.hp <= 0) {
                     if(z.target.type === 'nut') {
                         playSfx('sfx-explode');
@@ -576,7 +560,7 @@
                                 zz.hp = 0;
                                 zz.el.classList.add('dying');
                                 setTimeout(() => zz.el.remove(), 500);
-                            }
+                            } 
                         });
                     }
                     let deadPlant = z.target;
@@ -584,23 +568,16 @@
                     deadPlant.el.style.opacity = '0';
                     deadPlant.el.style.transform = 'translateY(-20px)';
                     setTimeout(() => deadPlant.el.remove(), 500);
-                    cell.plant = null; z.eating = false;
+                    cell.plant = null; z.eating = false; stopAudio('sfx-eat');
                 }
             } else {
-                if(z.eating) { 
-                    z.eating = false; 
-                    if(z.target && z.target.el) z.target.el.style.filter = 'brightness(1)'; 
-                }
+                if(z.eating) { z.eating = false; stopAudio('sfx-eat'); if(z.target && z.target.el) z.target.el.style.filter = 'brightness(1)'; }
                 z.x -= z.dx; z.el.style.left = z.x + '%';
             }
             if(z.x <= 5) { gameActive = false; stopAllSounds(); playSfx('sfx-lose'); document.getElementById('lose-screen').style.display = 'block'; }
         });
 
-        let eatSound = document.getElementById('sfx-eat');
-        if(anyoneEating && gameActive) { if(eatSound.paused) eatSound.play(); } 
-        else { eatSound.pause(); }
-
-        if(wavesTriggered >= totalWaves && !waveSpawning && zombies.length > 0 && zombies.every(z => z.hp <= 0)) {
+        if(wavesTriggered >= totalWaves && zombies.length > 0 && zombies.every(z => z.hp <= 0)) {
             gameActive = false;
             let winSeed = document.getElementById('win-seed');
             if(currentLevel === 1) winSeed.src = 'https://www.dropbox.com/scl/fi/94ixo4rnm687xqsf5qu2q/Picsart_26-04-29_23-48-27-973.png?rlkey=a1s95150lhm2kyatcmom9t8dj&st=xzm3qqxb&dl=1';
@@ -639,6 +616,7 @@
                 setTimeout(() => hitZ.el.classList.remove('hit'), 200);
                 if(hitZ.hp <= 0) {
                     hitZ.el.classList.add('dying');
+                    if(hitZ.eating) { stopAudio('sfx-eat'); if(hitZ.target && hitZ.target.el) hitZ.target.el.style.filter = 'brightness(1)'; }
                     setTimeout(() => hitZ.el.remove(), 500);
                 }
             }
@@ -648,3 +626,4 @@
 </script>
 </body>
 </html>
+
