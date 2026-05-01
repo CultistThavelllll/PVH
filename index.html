@@ -519,7 +519,7 @@
         wText.style.display = 'block';
         setTimeout(()=> wText.style.transform = 'scale(1)', 100);
         
-        let zombieCount = (wavesTriggered === 1) ? 10 : 15;
+        let zombieCount = (wavesTriggered === 1) ? 10 : (currentLevel === 2 ? 14 : 25);
 
         setTimeout(() => {
             wText.style.display = 'none';
@@ -595,19 +595,20 @@
                     deadPlant.el.style.filter = 'brightness(1)'; 
                     deadPlant.el.style.opacity = '0';
                     deadPlant.el.style.transform = 'translateY(-20px)';
-                    setTimeout(() => deadPlant.el.remove(), 500);
+                    setTimeout(() => { if(deadPlant.el) deadPlant.el.remove(); }, 500);
                     
                     cell.plant = null; 
                     z.eating = false; 
                     updateEatingSound();
                     
-                    zombies.forEach(otherZ => { if (otherZ.target === deadPlant) otherZ.eating = false; });
+                    zombies.forEach(otherZ => { if (otherZ.target === deadPlant) { otherZ.eating = false; otherZ.target = null; } });
                 }
             } else {
                 if(z.eating) { 
                    z.eating = false; 
                    updateEatingSound(); 
-                   if(z.target && z.target.el) { z.target.el.style.filter = 'brightness(1)'; z.target = null; } 
+                   if(z.target && z.target.el) z.target.el.style.filter = 'brightness(1)'; 
+                   z.target = null;
                 }
                 z.x -= z.dx; z.el.style.left = z.x + '%';
             }
