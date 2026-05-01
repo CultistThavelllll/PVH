@@ -485,7 +485,9 @@
         let hp = 330;
         let speedMult = 1;
         let img = 'https://www.dropbox.com/scl/fi/o7gsnni0d6jhvjqa1xjmw/Picsart_26-04-29_23-54-32-866.png?rlkey=bpg3zl4gmwi9r8nhlcvbi3ilh&st=dxvn5on9&dl=1';
-        if(currentLevel >= 2 && levelTime > 20000 && Math.random() < 0.3) {
+        
+        // ФИКС БАЛАНСА 2 УРОВНЯ: Военные не сразу и реже
+        if(currentLevel >= 2 && levelTime > 40000 && Math.random() < 0.25) {
             zType = 'military'; hp = 640; 
             img = 'https://www.dropbox.com/scl/fi/vn4zyqswt1ir93kpwmza0/Picsart_26-04-30_20-05-08-683.png?rlkey=mnl9cre4m5p4dik5vesv0l2s3&st=h4z6q5n6&dl=1';
         }
@@ -550,7 +552,8 @@
                     spawnSun(18 + p.c * 17, 15 + p.r * 18, 50);
                 }
                 let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
-                if(hasZ && now - p.lastBlade > 30000) { 
+                // БАФФ: КИДАЕТ КАЖДЫЕ 23 СЕКУНДЫ
+                if(hasZ && now - p.lastBlade > 23000) { 
                     p.lastBlade = now;
                     playSfx('sfx-blade-throw');
                     shootProjectile(p, 'blade', 150);
@@ -571,7 +574,8 @@
                 
                 let dmg = (z.target.type === 'nut') ? 4.16 : 1.5;
                 z.target.hp -= dmg;
-                z.target.el.style.filter = (now % 200 < 100) ? 'brightness(3)' : 'brightness(1)';
+                // ФИКС БЕЛЫХ РАСТЕНИЙ (мигание только при получении урона)
+                z.target.el.style.filter = (now % 200 < 100) ? 'brightness(1.5)' : 'brightness(1)';
                 
                 if(z.target.hp <= 0) {
                     if(z.target.type === 'nut') {
@@ -583,10 +587,7 @@
                         zombies.forEach(zz => { 
                             if(zz.r === z.target.r && zz.x >= z.target.c * 17 && zz.x <= (z.target.c + 1) * 17 + 30) {
                                 zz.hp = 0;
-                                if(zz.eating) {
-                                    zz.eating = false;
-                                    if(zz.target && zz.target.el) zz.target.el.style.filter = 'brightness(1)';
-                                }
+                                if(zz.eating) { zz.eating = false; updateEatingSound(); }
                                 zz.el.classList.add('dying');
                                 setTimeout(() => zz.el.remove(), 500);
                             }
@@ -594,7 +595,7 @@
                     }
                     
                     let deadPlant = z.target;
-                    deadPlant.el.style.filter = 'brightness(10)';
+                    deadPlant.el.style.filter = 'brightness(1)'; // СБРОС ЦВЕТА
                     deadPlant.el.style.opacity = '0';
                     deadPlant.el.style.transform = 'translateY(-20px)';
                     setTimeout(() => deadPlant.el.remove(), 500);
@@ -603,11 +604,8 @@
                     z.eating = false; 
                     updateEatingSound();
                     
-                    zombies.forEach(otherZ => {
-                        if (otherZ.target === deadPlant) {
-                            otherZ.eating = false;
-                        }
-                    });
+                    zombies.forEach(otherZ => { if (otherZ.target === deadPlant) otherZ.eating = false; });
+                    updateEatingSound();
                 }
             } else {
                 if(z.eating) { z.eating = false; updateEatingSound(); if(z.target && z.target.el) z.target.el.style.filter = 'brightness(1)'; }
@@ -655,11 +653,7 @@
                 setTimeout(() => hitZ.el.classList.remove('hit'), 200);
                 if(hitZ.hp <= 0) {
                     hitZ.el.classList.add('dying');
-                    if(hitZ.eating) { 
-                        hitZ.eating = false; 
-                        updateEatingSound(); 
-                        if(hitZ.target && hitZ.target.el) hitZ.target.el.style.filter = 'brightness(1)'; 
-                    }
+                    if(hitZ.eating) { hitZ.eating = false; updateEatingSound(); }
                     setTimeout(() => hitZ.el.remove(), 500);
                 }
             }
