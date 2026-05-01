@@ -87,7 +87,7 @@
         .explosion { width: 100%; height: 100%; position: absolute; background: url('https://www.dropbox.com/scl/fi/uw05nyyumme8prpdtw473/Picsart_26-04-30_19-36-02-097.png?rlkey=f2srniv07vmuarmceuu2aw59g&st=j29q425u&dl=1') no-repeat center/contain; z-index: 15; transform: scale(1.5); animation: ghostOut 1s forwards;}
 
         #ready-set-plant { position: absolute; top: 40%; width: 100%; text-align: center; color: red; font-size: 40px; font-weight: bold; text-shadow: 2px 2px black; z-index: 20; display: none;}
-        #wave-warning { position: absolute; top: 40%; width: 100%; text-align: center; color: red; font-size: 24px; font-weight: bold; text-shadow: 2px 2px black; z-index: 20; display: none; transform: scale(0.1); transition: transform 0.5s, opacity 0.5s;}
+        #wave-warning { position: absolute; top: 40%; width: 100%; text-align: center; color: red; font-size: 24px; font-weight: bold; text-shadow: 2px 2px black; z-index: 20; display: none; transform: scale(0.1); transition: transform 0.5s;}
         
         .error-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: none; background: rgba(0,0,0,0.8); }
         .error-popup img { width: 80%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
@@ -200,24 +200,17 @@
     let wavesTriggered = 0;
     let totalWaves = (currentLevel === 1) ? 1 : 2;
     let zombieSoundPlayed = false;
-    let waveSpawning = false;
-    let eatersCount = 0; // Для фикса звука жевания
-
+    let waveSpawning = false; 
+    
     let plantData = {
         'pea': { cost: 100, cd: 3000, img: 'https://www.dropbox.com/scl/fi/mecjixahsxo2cls30upjj/Picsart_26-04-29_23-55-15-781.png?rlkey=zsjyqs640gb9544yf15utu1ln&st=rlqjkz5u&dl=1', hp: 250 },
         'sunflower': { cost: 50, cd: 4000, img: 'https://www.dropbox.com/scl/fi/au1twfcjyujwcz7uj7j60/Picsart_26-04-30_13-45-19-968.png?rlkey=t4qqfip4jm3h6ul43lopd1mej&st=phat674f&dl=1', hp: 250 },
-        'nut': { cost: 75, cd: 20000, img: 'https://www.dropbox.com/scl/fi/61qa0ggr22dnccvgpft97/Picsart_26-04-30_13-50-35-039.png?rlkey=jkxxaz2zpy83oqz0ri7i1py33&st=ohrwftb8&dl=1', hp: 5000 }
+        'nut': { cost: 75, cd: 20000, img: 'https://www.dropbox.com/scl/fi/61qa0ggr22dnccvgpft97/Picsart_26-04-30_13-50-35-039.png?rlkey=jkxxaz2zpy83oqz0ri7i1py33&st=ohrwftb8&dl=1', hp: 5000 } 
     };
     
     let cooldowns = { 'pea': false, 'sunflower': false, 'nut': false };
 
-    const playSfx = (id) => { 
-        let a = document.getElementById(id); 
-        if(a){
-            if(id === 'sfx-eat' && a.paused) { a.play(); } 
-            else if(id !== 'sfx-eat') { a.currentTime=0; a.play(); }
-        } 
-    }
+    const playSfx = (id) => { let a = document.getElementById(id); if(a){a.play();} }
     const stopAudio = (id) => { let a = document.getElementById(id); if(a){a.pause(); a.currentTime=0;} }
     const stopAllSounds = () => { document.querySelectorAll('audio').forEach(a => {a.pause(); a.currentTime=0;}); }
 
@@ -332,8 +325,6 @@
 
     function createGrid() {
         const grid = document.getElementById('grid');
-        grid.innerHTML = '';
-        cells = [];
         for(let r=0; r<gridRows; r++){
             for(let c=0; c<gridCols; c++){
                 let cell = document.createElement('div');
@@ -419,7 +410,6 @@
         gameActive = true;
         levelTime = 0;
         zombieSoundPlayed = false;
-        eatersCount = 0;
         
         setInterval(() => { if(gameActive) spawnSun(); }, 5000);
 
@@ -433,7 +423,7 @@
                 zombieSoundPlayed = true;
             }
 
-            if(levelTime > 8000 && levelTime % 45000 === 0 && wavesTriggered < totalWaves) {
+            if(levelTime > 8000 && levelTime % 60000 === 0 && wavesTriggered < totalWaves) {
                 triggerWave();
             }
             if(levelTime > 8000 && levelTime % 8000 === 0 && wavesTriggered < totalWaves && !waveSpawning) {
@@ -483,11 +473,11 @@
         let hp = 330;
         let speedMult = 1;
         let img = 'https://www.dropbox.com/scl/fi/o7gsnni0d6jhvjqa1xjmw/Picsart_26-04-29_23-54-32-866.png?rlkey=bpg3zl4gmwi9r8nhlcvbi3ilh&st=dxvn5on9&dl=1';
-        if(currentLevel >= 2 && Math.random() < 0.3) {
+        if(currentLevel >= 2 && levelTime > 20000 && Math.random() < 0.3) {
             zType = 'military'; hp = 640; 
             img = 'https://www.dropbox.com/scl/fi/vn4zyqswt1ir93kpwmza0/Picsart_26-04-30_20-05-08-683.png?rlkey=mnl9cre4m5p4dik5vesv0l2s3&st=h4z6q5n6&dl=1';
         }
-        if(currentLevel >= 3 && Math.random() < 0.2) {
+        if(currentLevel === 3 && levelTime > 30000 && Math.random() < 0.4) {
             zType = 'vaulter'; hp = 450; speedMult = 1.4;
             img = 'https://www.dropbox.com/scl/fi/ikhmc7sm22ldphl4b598p/Picsart_26-04-30_20-39-47-597.png?rlkey=hgcbjueyqzyxie7y1mnqv83kq&st=ec4v96lj&dl=1';
         }
@@ -508,32 +498,30 @@
 
     function triggerWave() {
         wavesTriggered++;
-        waveSpawning = true;
+        waveSpawning = true; 
         document.getElementById('wave-count').innerText = Math.max(0, totalWaves - wavesTriggered);
         playSfx('sfx-wave');
         let wText = document.getElementById('wave-warning');
         wText.style.display = 'block';
-        wText.style.transform = 'scale(1)';
-        wText.style.opacity = '1';
+        wText.style.transform = 'scale(0.1)';
+        setTimeout(()=> wText.style.transform = 'scale(1)', 50);
+        
+        let spawnCount = (wavesTriggered === totalWaves) ? 12 : 8; // Больше зомби на последней волне
         
         setTimeout(() => {
-            wText.style.opacity = '0';
-            setTimeout(() => { wText.style.display = 'none'; wText.style.transform = 'scale(0.1)'; }, 500);
-            
-            let count = (wavesTriggered === 1) ? 6 : 12; // Больше зомби на 2 волне
-            for(let i=0; i<count; i++) {
+            wText.style.display = 'none';
+            for(let i=0; i<spawnCount; i++) {
                 setTimeout(() => {
                     spawnZombieRandom();
-                    if(i === count - 1) waveSpawning = false;
+                    if(i === spawnCount - 1) waveSpawning = false; 
                 }, i * 400);
             }
-        }, 4000);
+        }, 3000);
     }
 
     function gameTick() {
         if(!gameActive) return;
         let now = Date.now();
-        
         plants.forEach(p => {
             if(p.hp <= 0) return;
             if(p.type === 'pea') {
@@ -543,14 +531,14 @@
                     shootProjectile(p, 'pea', 30);
                 }
             } else if(p.type === 'sunflower') {
-                if(now - p.lastSun > 25000) {
+                if(now - p.lastSun > 25000) { 
                     p.lastSun = now;
                     p.el.style.opacity = 0.5;
                     setTimeout(() => p.el.style.opacity = 1, 1000);
                     spawnSun(18 + p.c * 17, 15 + p.r * 18, 50);
                 }
                 let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
-                if(hasZ && now - p.lastBlade > 30000) {
+                if(hasZ && now - p.lastBlade > 30000) { 
                     p.lastBlade = now;
                     playSfx('sfx-blade-throw');
                     shootProjectile(p, 'blade', 150);
@@ -558,6 +546,7 @@
             }
         });
 
+        let anyEating = false;
         zombies.forEach(z => {
             if(z.hp <= 0) return;
             let cell = cells.find(c => c.r === z.r && (15 + c.c * 17) >= z.x - 10 && (15 + c.c * 17) <= z.x);
@@ -569,12 +558,9 @@
             }
 
             if(cell && cell.plant && cell.plant.hp > 0) {
-                if(!z.eating) { 
-                    z.eating = true; 
-                    z.target = cell.plant; 
-                    eatersCount++;
-                    playSfx('sfx-eat');
-                }
+                z.eating = true;
+                z.target = cell.plant;
+                anyEating = true;
                 
                 let dmg = (z.target.type === 'nut') ? 4.16 : 1.5;
                 z.target.hp -= dmg;
@@ -588,7 +574,6 @@
                         setTimeout(() => expl.remove(), 1000);
                         zombies.forEach(zz => { 
                             if(zz.r === z.target.r && zz.x >= z.target.c * 17 && zz.x <= (z.target.c + 1) * 17 + 30) {
-                                if(zz.eating) { zz.eating = false; eatersCount--; }
                                 zz.hp = 0;
                                 zz.el.classList.add('dying');
                                 setTimeout(() => zz.el.remove(), 500);
@@ -598,34 +583,23 @@
                     let deadPlant = z.target;
                     deadPlant.el.style.filter = 'brightness(10)';
                     deadPlant.el.style.opacity = '0';
-                    deadPlant.el.style.transform = 'translateY(-20px)';
                     setTimeout(() => deadPlant.el.remove(), 500);
-                    cell.plant = null; 
-                    
-                    zombies.forEach(zz => {
-                        if(zz.target === deadPlant) {
-                            if(zz.eating) eatersCount--;
-                            zz.eating = false;
-                            zz.target = null;
-                        }
-                    });
-                    
-                    if(eatersCount <= 0) { stopAudio('sfx-eat'); eatersCount = 0; }
+                    cell.plant = null; z.eating = false;
                 }
             } else {
-                if(z.eating) { 
-                    z.eating = false; 
-                    eatersCount--; 
-                    if(eatersCount <= 0) { stopAudio('sfx-eat'); eatersCount = 0; }
-                }
+                z.eating = false;
                 z.x -= z.dx; z.el.style.left = z.x + '%';
             }
             if(z.x <= 5) { gameActive = false; stopAllSounds(); playSfx('sfx-lose'); document.getElementById('lose-screen').style.display = 'block'; }
         });
 
+        // Контроль звука жевания (чтобы не затихал когда много едят)
+        let eatSfx = document.getElementById('sfx-eat');
+        if(anyEating && gameActive) { if(eatSfx.paused) eatSfx.play(); } 
+        else { eatSfx.pause(); }
+
         if(wavesTriggered >= totalWaves && !waveSpawning && zombies.length > 0 && zombies.every(z => z.hp <= 0)) {
             gameActive = false;
-            stopAudio('sfx-eat');
             let winSeed = document.getElementById('win-seed');
             if(currentLevel === 1) winSeed.src = 'https://www.dropbox.com/scl/fi/94ixo4rnm687xqsf5qu2q/Picsart_26-04-29_23-48-27-973.png?rlkey=a1s95150lhm2kyatcmom9t8dj&st=xzm3qqxb&dl=1';
             else if(currentLevel === 2) winSeed.src = 'https://www.dropbox.com/scl/fi/rxbxa8npw46gifa3vaihy/Picsart_26-04-30_20-27-18-541.png?rlkey=sipsu89aq29zjrioxnqh3rhdd&st=4w6gblau&dl=1';
@@ -662,7 +636,6 @@
                 hitZ.el.classList.add('hit');
                 setTimeout(() => hitZ.el.classList.remove('hit'), 200);
                 if(hitZ.hp <= 0) {
-                    if(hitZ.eating) { hitZ.eating = false; eatersCount--; if(eatersCount <= 0) stopAudio('sfx-eat'); }
                     hitZ.el.classList.add('dying');
                     setTimeout(() => hitZ.el.remove(), 500);
                 }
@@ -673,3 +646,4 @@
 </script>
 </body>
 </html>
+
