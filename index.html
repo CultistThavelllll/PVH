@@ -21,7 +21,6 @@
         
         .blinking { animation: blink 1s infinite; color: red; font-weight: bold; margin: 20px;}
         
-        /* ФИКС 3: Сплющенное меню для мобилок */
         #main-menu {
             background: url('https://www.dropbox.com/scl/fi/0weoum0ee37vr2mh64yye/Picsart_26-04-21_12-16-41-162.jpg?rlkey=g5sz7jmrxingo606mrwimpr3h&st=8b84e0uy&dl=1') no-repeat center/100% 100%;
         }
@@ -32,8 +31,11 @@
         #seed-box-container { position: absolute; bottom: -100%; width: 100%; height: 100%; transition: bottom 0.5s; z-index: 2; pointer-events: none;}
         #seed-box { width: 100%; position: absolute; bottom: 0; pointer-events: auto;}
         
-        /* ФИКС 4: Иконка гороха выше */
-        #seed-pea { position: absolute; bottom: 22%; left: 10%; width: 20%; z-index: 3; pointer-events: auto; transition: filter 0.2s;} 
+        .seed-icon-select { position: absolute; z-index: 3; pointer-events: auto; transition: filter 0.2s; width: 25%; bottom: 26%; }
+        #seed-pea { left: 8%; } 
+        #seed-sunflower { left: 35%; display: none; }
+        #seed-nut { left: 62%; display: none; }
+
         #start-fight-btn { position: absolute; bottom: 5%; left: 30%; width: 40%; z-index: 3; pointer-events: auto;}
         
         .selected-seed { filter: brightness(0.3) opacity(0.8) !important; }
@@ -54,36 +56,44 @@
         }
         #level-info { background: darkblue; color: white; border: 1px solid black; padding: 5px; margin: 5px; font-size: 12px; text-align:right;}
         
-        /* ФИКС 1: Семена ниже счетчика */
-        #seed-bank-wrapper { position: absolute; left: 10px; top: 50px; width: 60px; height: 80px; overflow: hidden; z-index: 20;}
-        #seed-bank { width: 100%; cursor: pointer; }
-        #cooldown-overlay { 
+        #seed-bank-wrapper { position: absolute; left: 5px; top: 50px; width: 65px; height: auto; z-index: 20; display:flex; flex-direction:column; gap:5px;}
+        .seed-bank-slot { width: 100%; cursor: pointer; position: relative; }
+        .seed-bank-slot img { width: 100%; }
+        .cooldown-overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 0%; 
             background: rgba(0,0,0,0.7); pointer-events: none; transition: height 0.1s linear;
         }
         
-        .plant { width: 80%; height: 80%; position: absolute; bottom: 5px; left: 10%; transition: filter 0.2s;}
+        .plant { width: 80%; height: 80%; position: absolute; bottom: 5px; left: 10%; transition: filter 0.2s, opacity 0.5s;}
         .zombie { 
-            width: 60px; height: 80px; position: absolute; background: url('https://www.dropbox.com/scl/fi/o7gsnni0d6jhvjqa1xjmw/Picsart_26-04-29_23-54-32-866.png?rlkey=bpg3zl4gmwi9r8nhlcvbi3ilh&st=dxvn5on9&dl=1') no-repeat center/contain;
-            transition: left 0.1s linear, filter 0.2s;
+            width: 60px; height: 80px; position: absolute; background-repeat: no-repeat; background-position: center; background-size: contain;
+            transition: left 0.1s linear, filter 0.2s; pointer-events: none;
+            z-index: 6;
         }
-        .zombie.dying { animation: ghostOut 0.5s forwards; }
+        .zombie.dying { animation: ghostOut 0.5s forwards !important; }
         .zombie.hit { filter: brightness(3); }
 
         .pea-projectile { width: 35px; height: 35px; background: url('https://www.dropbox.com/scl/fi/ouqp81ohu2to1ajb8mpiw/Picsart_26-04-30_12-00-03-005.png?rlkey=rz4rc5m2eunj76ucz6lt80quy&st=7asm32b7&dl=1') no-repeat center/contain; position: absolute; z-index: 5; margin-top: -10px;}
+        .blade-projectile { width: 45px; height: 45px; background: url('https://www.dropbox.com/scl/fi/7ys6xxz0gglz9nxlvq9wj/Picsart_26-04-30_13-46-15-316.png?rlkey=m7zbrqaavvmamud39421rpaqf&st=ebl5o1zf&dl=1') no-repeat center/contain; position: absolute; z-index: 5; margin-top: -15px; animation: spin 0.2s linear infinite;}
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         
         .sun { 
             width: 50px; height: 50px; position: absolute; 
             background: url('https://www.dropbox.com/scl/fi/0lgksimywbhb4nw24pr6s/Picsart_26-04-30_12-32-46-760.png?rlkey=bml9biantsnvjq4epmi2jqkvo&st=krb1twoz&dl=1') no-repeat center/contain; 
-            z-index: 10; cursor: pointer;
+            z-index: 10; cursor: pointer; pointer-events: auto;
         }
         .sun-collecting { transition: all 0.5s ease-in !important; z-index: 100; }
 
+        .explosion { width: 100%; height: 100%; position: absolute; background: url('https://www.dropbox.com/scl/fi/uw05nyyumme8prpdtw473/Picsart_26-04-30_19-36-02-097.png?rlkey=f2srniv07vmuarmceuu2aw59g&st=j29q425u&dl=1') no-repeat center/contain; z-index: 15; transform: scale(1.5); animation: ghostOut 1s forwards;}
+
         #ready-set-plant { position: absolute; top: 40%; width: 100%; text-align: center; color: red; font-size: 40px; font-weight: bold; text-shadow: 2px 2px black; z-index: 20; display: none;}
-        #wave-warning { position: absolute; top: 40%; width: 100%; text-align: center; color: red; font-size: 24px; font-weight: bold; text-shadow: 2px 2px black; z-index: 20; display: none; transform: scale(0.1); transition: transform 2s;}
+        #wave-warning { position: absolute; top: 40%; width: 100%; text-align: center; color: red; font-size: 24px; font-weight: bold; text-shadow: 2px 2px black; z-index: 20; display: none; transform: scale(0.1); transition: transform 0.5s, opacity 0.5s;}
         
         .error-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: none; background: rgba(0,0,0,0.8); }
         .error-popup img { width: 80%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+        #l4-wait-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: none; background: rgba(0,0,0,0.8); cursor: pointer;}
+        #l4-wait-screen img { width: 100%; height: 100%; object-fit: contain; }
 
         #white-fade { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; opacity: 0; pointer-events: none; transition: opacity 3s; z-index: 999;}
     </style>
@@ -99,11 +109,17 @@
 <audio id="sfx-plant" src="https://www.dropbox.com/scl/fi/6fi6gjjlcjx9vdgg2981z/plants-vs-zombies-planting-sound-2.mp3?rlkey=zd898mwjy9ipku7x5eibsllnx&st=xdja7565&dl=1"></audio>
 <audio id="sfx-sun" src="https://www.dropbox.com/scl/fi/noqzytc2p3sbcujppc2vd/plants-vs-zombies-sun-pickup.mp3?rlkey=4ba9jewr8al2vayjbbseu4s58&st=bbkj97sf&dl=1"></audio>
 <audio id="sfx-hit" src="https://www.dropbox.com/scl/fi/djhpyld3zizkx2m38t2be/plants-vs-zombies-hit-2.mp3?rlkey=82lx2fgtt27lrhiewprcnj2jc&st=usugyt74&dl=1"></audio>
-<audio id="sfx-eat" src="https://www.dropbox.com/scl/fi/6jyexllg84qsn0egd144a/plants-vs-zombies-eating-for-1-minute-straight.mp3?rlkey=zs106zj8jdjouwxnuno5naizv&st=1dm6hbrr&dl=1"></audio>
+<audio id="sfx-eat" src="https://www.dropbox.com/scl/fi/6jyexllg84qsn0egd144a/plants-vs-zombies-eating-for-1-minute-straight.mp3?rlkey=zs106zj8jdjouwxnuno5naizv&st=1dm6hbrr&dl=1" loop></audio>
 <audio id="sfx-zombie-come" src="https://www.dropbox.com/scl/fi/gnq5dgwz76c4du7lc6cud/2_5422779880628592419.ogg?rlkey=tb0tlsqnat1yrfbgp2uezabg2&st=i1gkp7cb&dl=1"></audio>
 <audio id="sfx-wave" src="https://www.dropbox.com/scl/fi/2oe0tcfzawayneoesv5nb/plants-vs-zombies-wave.mp3?rlkey=cmmwhp8frh7w02jm0u5pyz6jf&st=fgnabjjr&dl=1"></audio>
 <audio id="sfx-win" src="https://www.dropbox.com/scl/fi/5oldgcoeslosozsidjz6u/pvz-victory.mp3?rlkey=4t7bqnw8blr99um20ashag9zv&st=wij1q135&dl=1"></audio>
 <audio id="sfx-lose" src="https://www.dropbox.com/scl/fi/diy2iftqbr39tgu16a7a0/the-zombies-ate-your-brains-plants-vs-zombies-made-with-Voicemod.mp3?rlkey=njzpulqfo43hbd4bdt1gctosf&st=00wqy5h3&dl=1"></audio>
+
+<audio id="sfx-blade-throw" src="https://www.dropbox.com/scl/fi/ely9q114fl92ro88v1c13/2_5449863879972660199.mp3?rlkey=fgtujm7poih64xsv04itc3qfc&st=jtptxkq1&dl=1"></audio>
+<audio id="sfx-blade-hit" src="https://www.dropbox.com/scl/fi/nyxdomhgn4agee9yraabn/2_5449863879972660204.mp3?rlkey=rjl1dqz6q9t0kh0ks0ld1lxe0&st=0asosuq4&dl=1"></audio>
+<audio id="sfx-blade-finish" src="https://www.dropbox.com/scl/fi/cjfoxlm1tobyv0c0wgxv7/2_5449863879972660201.mp3?rlkey=t5ic45z54blmi1rmb42j4upch&st=u1aczp0s&dl=1"></audio>
+<audio id="sfx-explode" src="https://www.dropbox.com/scl/fi/8oc8ulfd02g3aknmst1ae/pvz-cherrybomb.mp3?rlkey=hbj3bj6yfxdq5gf8rm0gwvflq&st=zub9t1d4&dl=1"></audio>
+<audio id="sfx-jump" src="https://www.dropbox.com/scl/fi/oo8n5ynujzjbo1ycakpww/maro-jump-sound-effect_1.mp3?rlkey=jl6awja5fyv83jzgd3k9wyax6&st=pvlnrb5v&dl=1"></audio>
 
 <div id="loading-screen" class="screen">
     <div id="load-text">Загрузка Ресурсов — 0%<br>(Это займёт считанные секунды)</div>
@@ -118,11 +134,15 @@
 </div>
 
 <div id="seed-selection" class="screen">
-    <div style="position:absolute; bottom:10px; text-align:center; width:100%;">Уровень 1 - День</div>
+    <div id="seed-lvl-txt" style="position:absolute; bottom:10px; text-align:center; width:100%;">Уровень 1 - День</div>
     <img id="zombie-preview" src="https://www.dropbox.com/scl/fi/uhdjok7txqglclc0n023u/Picsart_26-04-21_12-10-57-444.jpg?rlkey=psorjsnrwmtghhsaubnnfidfl&st=gxwspjyo&dl=1">
     <div id="seed-box-container">
         <img id="seed-box" src="https://www.dropbox.com/scl/fi/45jbnhoiza0ormmnoqi0x/Picsart_26-04-30_00-08-05-508.png?rlkey=f3mkqmna2c5iaa6uf6zs55o19&st=dqm9lvk1&dl=1">
-        <img id="seed-pea" src="https://www.dropbox.com/scl/fi/1b08fandqm30ib5nc2ma1/Picsart_26-04-29_23-47-11-140.png?rlkey=f2hqhaxuvbh30c5kceubou2dr&st=ehkv0jaq&dl=1" style="display:none;">
+        
+        <img id="seed-pea" class="seed-icon-select" src="https://www.dropbox.com/scl/fi/1b08fandqm30ib5nc2ma1/Picsart_26-04-29_23-47-11-140.png?rlkey=f2hqhaxuvbh30c5kceubou2dr&st=ehkv0jaq&dl=1" style="display:none;">
+        <img id="seed-sunflower" class="seed-icon-select" src="https://www.dropbox.com/scl/fi/94ixo4rnm687xqsf5qu2q/Picsart_26-04-29_23-48-27-973.png?rlkey=a1s95150lhm2kyatcmom9t8dj&st=t8k68sig&dl=1">
+        <img id="seed-nut" class="seed-icon-select" src="https://www.dropbox.com/scl/fi/rxbxa8npw46gifa3vaihy/Picsart_26-04-30_20-27-18-541.png?rlkey=sipsu89aq29zjrioxnqh3rhdd&st=4w6gblau&dl=1">
+
         <img id="start-fight-btn" src="https://www.dropbox.com/scl/fi/wyhmbwehjt1t6u5qqiaho/Picsart_26-04-30_00-12-56-442.png?rlkey=zvw0ljerhw7a0voparkv93zo9&st=khsdt6vk&dl=1" style="display:none;">
     </div>
 </div>
@@ -132,44 +152,72 @@
     <div id="grid"></div>
     <div id="ui-top">
         <div id="sun-counter">Количество Солнц: 100</div>
-        <div id="level-info">Уровень - 1. Этап - День<br>Количество Волн — <span id="wave-count">1</span></div>
+        <div id="level-info">Уровень - <span id="lvl-display">1</span>. Этап - День<br>Количество Волн — <span id="wave-count">1</span></div>
     </div>
     <div id="seed-bank-wrapper">
-        <img id="seed-bank" src="https://www.dropbox.com/scl/fi/1b08fandqm30ib5nc2ma1/Picsart_26-04-29_23-47-11-140.png?rlkey=f2hqhaxuvbh30c5kceubou2dr&st=m1o0g8ma&dl=1">
-        <div id="cooldown-overlay"></div>
+        <div class="seed-bank-slot" id="slot-pea" data-plant="pea" data-cost="100" data-cd="3000">
+            <img src="https://www.dropbox.com/scl/fi/1b08fandqm30ib5nc2ma1/Picsart_26-04-29_23-47-11-140.png?rlkey=f2hqhaxuvbh30c5kceubou2dr&st=m1o0g8ma&dl=1">
+            <div class="cooldown-overlay" id="cd-pea"></div>
+        </div>
+        <div class="seed-bank-slot" id="slot-sunflower" data-plant="sunflower" data-cost="50" data-cd="4000" style="display:none;">
+            <img src="https://www.dropbox.com/scl/fi/94ixo4rnm687xqsf5qu2q/Picsart_26-04-29_23-48-27-973.png?rlkey=a1s95150lhm2kyatcmom9t8dj&st=t8k68sig&dl=1">
+            <div class="cooldown-overlay" id="cd-sunflower"></div>
+        </div>
+        <div class="seed-bank-slot" id="slot-nut" data-plant="nut" data-cost="75" data-cd="20000" style="display:none;">
+            <img src="https://www.dropbox.com/scl/fi/rxbxa8npw46gifa3vaihy/Picsart_26-04-30_20-27-18-541.png?rlkey=sipsu89aq29zjrioxnqh3rhdd&st=4w6gblau&dl=1">
+            <div class="cooldown-overlay" id="cd-nut"></div>
+        </div>
     </div>
     <div id="ready-set-plant"></div>
     <div id="wave-warning">Приближаеться огромная волна зомби зайцев! Постарайтесь как можно быстрее заполнить клетки растениями.</div>
-    <img id="win-seed" src="https://www.dropbox.com/scl/fi/94ixo4rnm687xqsf5qu2q/Picsart_26-04-29_23-48-27-973.png?rlkey=a1s95150lhm2kyatcmom9t8dj&st=xzm3qqxb&dl=1" style="display:none; position:absolute; top:40%; left:40%; width:20%; z-index:50; animation: blink 1s infinite;">
+    <img id="win-seed" src="" style="display:none; position:absolute; top:40%; left:40%; width:20%; z-index:50; animation: blink 1s infinite; cursor:pointer;">
 </div>
 
 <div id="error-nopass" class="error-popup" onclick="closePopup(this)">
     <img src="https://www.dropbox.com/scl/fi/zzkxux7p0tdnzzvgrmy6j/Picsart_26-04-30_00-11-24-838.png?rlkey=84ddp30mbylf7lngunofj424h&st=efi74jka&dl=1">
 </div>
-<div id="error-demo-end" class="error-popup" onclick="closePopupAndReload(this)">
-    <img src="https://www.dropbox.com/scl/fi/wtlfgr4lmg80g2nv556hq/Picsart_26-04-30_00-00-02-877.png?rlkey=fts1baq5nk0a9znm08nwdkejs&st=9dcqkxq8&dl=1">
-</div>
+
 <div id="lose-screen" class="error-popup" onclick="location.reload()">
     <img src="https://www.dropbox.com/scl/fi/5tpnk6m84qtrlk31f1aqm/Picsart_26-04-30_00-03-35-629.png?rlkey=bd2rbpixio3tktmdox2zg40dd&st=q1ugx6sm&dl=1">
+</div>
+
+<div id="l4-wait-screen" onclick="closeL4Wait()">
+    <img src="https://www.dropbox.com/scl/fi/wlpbbnnox00bgtt6o86w8/Picsart_26-04-30_20-41-42-135.png?rlkey=yw71lxw3e6t49wmhji1zzr9px&st=paftrxls&dl=1">
 </div>
 
 <div id="white-fade"></div>
 
 <script>
+    let currentLevel = parseInt(localStorage.getItem('pvz_level')) || 1;
     let suns = 100;
-    let peaSelected = false;
+    let selectedPlantType = null;
     let plantingMode = false;
     let gameActive = false;
-    let zombiesKilled = 0;
-    let waveTriggered = false;
-    let gridRows = 5;
-    let gridCols = 5;
-    let cells = [];
-    let zombies = [];
-    let plants = [];
-    let cooldownActive = false;
+    let gridRows = 5; let gridCols = 5;
+    let cells = []; let zombies = []; let plants = [];
+    
+    let levelTime = 0;
+    let wavesTriggered = 0;
+    let totalWaves = (currentLevel === 1) ? 1 : 2;
+    let zombieSoundPlayed = false;
+    let waveSpawning = false;
+    let eatersCount = 0; // Для фикса звука жевания
 
-    const playSfx = (id) => { let a = document.getElementById(id); if(a){a.currentTime=0; a.play();} }
+    let plantData = {
+        'pea': { cost: 100, cd: 3000, img: 'https://www.dropbox.com/scl/fi/mecjixahsxo2cls30upjj/Picsart_26-04-29_23-55-15-781.png?rlkey=zsjyqs640gb9544yf15utu1ln&st=rlqjkz5u&dl=1', hp: 250 },
+        'sunflower': { cost: 50, cd: 4000, img: 'https://www.dropbox.com/scl/fi/au1twfcjyujwcz7uj7j60/Picsart_26-04-30_13-45-19-968.png?rlkey=t4qqfip4jm3h6ul43lopd1mej&st=phat674f&dl=1', hp: 250 },
+        'nut': { cost: 75, cd: 20000, img: 'https://www.dropbox.com/scl/fi/61qa0ggr22dnccvgpft97/Picsart_26-04-30_13-50-35-039.png?rlkey=jkxxaz2zpy83oqz0ri7i1py33&st=ohrwftb8&dl=1', hp: 5000 }
+    };
+    
+    let cooldowns = { 'pea': false, 'sunflower': false, 'nut': false };
+
+    const playSfx = (id) => { 
+        let a = document.getElementById(id); 
+        if(a){
+            if(id === 'sfx-eat' && a.paused) { a.play(); } 
+            else if(id !== 'sfx-eat') { a.currentTime=0; a.play(); }
+        } 
+    }
     const stopAudio = (id) => { let a = document.getElementById(id); if(a){a.pause(); a.currentTime=0;} }
     const stopAllSounds = () => { document.querySelectorAll('audio').forEach(a => {a.pause(); a.currentTime=0;}); }
 
@@ -186,27 +234,35 @@
 
     document.getElementById('loading-screen').onclick = () => {
         if(loadPercent >= 100) {
-            if(localStorage.getItem('pvz_demo_beaten') === 'true') {
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('main-menu').style.display = 'flex';
-                document.getElementById('bgm-menu').play();
-                document.getElementById('start-btn').onclick = () => {
-                    playSfx('sfx-click');
-                    document.getElementById('error-demo-end').style.display = 'block';
-                }
-            } else {
-                playSfx('bgm-menu');
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('main-menu').style.display = 'flex';
-            }
+            playSfx('bgm-menu');
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'flex';
         }
     };
 
     document.getElementById('start-btn').onclick = () => {
         playSfx('sfx-click');
+        if(currentLevel >= 4) {
+            document.getElementById('l4-wait-screen').style.display = 'block';
+            return;
+        }
         stopAudio('bgm-menu');
         playSfx('bgm-seed');
         document.getElementById('main-menu').style.display = 'none';
+        
+        document.getElementById('seed-lvl-txt').innerText = `Уровень ${currentLevel} - День`;
+        document.getElementById('lvl-display').innerText = currentLevel;
+        document.getElementById('wave-count').innerText = totalWaves;
+        
+        if(currentLevel >= 2) {
+            document.getElementById('seed-sunflower').style.display = 'block';
+            document.getElementById('slot-sunflower').style.display = 'block';
+        }
+        if(currentLevel >= 3) {
+            document.getElementById('seed-nut').style.display = 'block';
+            document.getElementById('slot-nut').style.display = 'block';
+        }
+
         document.getElementById('seed-selection').style.display = 'flex';
         setTimeout(() => {
             document.getElementById('zombie-preview').style.opacity = 1;
@@ -218,20 +274,30 @@
         }, 2000);
     };
 
-    document.getElementById('seed-pea').onclick = function() {
+    function closeL4Wait() {
         playSfx('sfx-click');
-        if(peaSelected) {
-            this.classList.remove('selected-seed');
-            peaSelected = false;
-        } else {
-            this.classList.add('selected-seed');
-            peaSelected = true;
-        }
-    };
+        document.getElementById('l4-wait-screen').style.display = 'none';
+    }
+
+    let seedsSelected = 0;
+    let requiredSeeds = currentLevel === 1 ? 1 : (currentLevel === 2 ? 2 : 3);
+    
+    document.querySelectorAll('.seed-icon-select').forEach(el => {
+        el.onclick = function() {
+            playSfx('sfx-click');
+            if(this.classList.contains('selected-seed')) {
+                this.classList.remove('selected-seed');
+                seedsSelected--;
+            } else {
+                this.classList.add('selected-seed');
+                seedsSelected++;
+            }
+        };
+    });
 
     document.getElementById('start-fight-btn').onclick = () => {
         playSfx('sfx-click');
-        if(!peaSelected) {
+        if(seedsSelected < requiredSeeds) {
             document.getElementById('error-nopass').style.display = 'block';
         } else {
             document.getElementById('seed-box-container').style.bottom = '-100%';
@@ -244,27 +310,30 @@
     };
 
     function closePopup(el) { playSfx('sfx-click'); el.style.display = 'none'; }
-    function closePopupAndReload(el) { playSfx('sfx-click'); el.style.display = 'none'; location.reload(); }
 
     function initGame() {
         document.getElementById('game-screen').style.display = 'flex';
         createGrid();
+        updateSunUI();
         let txt = document.getElementById('ready-set-plant');
         txt.style.display = 'block';
         playSfx('sfx-ready');
+        
         setTimeout(()=>{txt.innerText = "1";}, 0);
-        setTimeout(()=>{txt.innerText = "2";}, 800);
-        setTimeout(()=>{txt.innerText = "3";}, 1600);
-        setTimeout(()=>{txt.innerText = "САЖАЙ!";}, 2400);
+        setTimeout(()=>{txt.innerText = "2";}, 600);
+        setTimeout(()=>{txt.innerText = "3";}, 1200);
+        setTimeout(()=>{txt.innerText = "САЖАЙ!";}, 1800);
         setTimeout(()=>{
             txt.style.display = 'none';
             document.getElementById('bgm-game').play();
             startGameLoop();
-        }, 3000);
+        }, 2300);
     }
 
     function createGrid() {
         const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        cells = [];
         for(let r=0; r<gridRows; r++){
             for(let c=0; c<gridCols; c++){
                 let cell = document.createElement('div');
@@ -276,112 +345,131 @@
         }
     }
 
-    function updateSeedUI() {
-        const sb = document.getElementById('seed-bank');
-        if(suns < 100 || cooldownActive) sb.classList.add('not-enough-sun');
-        else sb.classList.remove('not-enough-sun');
+    function updateSunUI() { 
+        document.getElementById('sun-counter').innerText = `Количество Солнц: ${suns}`; 
+        document.querySelectorAll('.seed-bank-slot').forEach(slot => {
+            let cost = parseInt(slot.getAttribute('data-cost'));
+            let type = slot.getAttribute('data-plant');
+            if(suns < cost || cooldowns[type]) slot.classList.add('not-enough-sun');
+            else slot.classList.remove('not-enough-sun');
+        });
     }
 
-    document.getElementById('seed-bank').onclick = function() {
-        if(cooldownActive) return;
-        if(plantingMode) {
-            this.classList.remove('selected-seed');
-            plantingMode = false;
-        } else if(suns >= 100) {
-            playSfx('sfx-seed-pickup');
-            this.classList.add('selected-seed');
-            plantingMode = true;
+    document.querySelectorAll('.seed-bank-slot').forEach(slot => {
+        slot.onclick = function() {
+            let type = this.getAttribute('data-plant');
+            let cost = parseInt(this.getAttribute('data-cost'));
+            if(cooldowns[type] || suns < cost) return;
+            if(plantingMode && selectedPlantType === type) {
+                this.classList.remove('selected-seed');
+                plantingMode = false;
+                selectedPlantType = null;
+            } else {
+                document.querySelectorAll('.seed-bank-slot').forEach(s => s.classList.remove('selected-seed'));
+                playSfx('sfx-seed-pickup');
+                this.classList.add('selected-seed');
+                plantingMode = true;
+                selectedPlantType = type;
+            }
         }
-    }
+    });
 
     function placePlant(e, r, c) {
-        if(!plantingMode) return;
+        if(!plantingMode || !selectedPlantType) return;
         let cellData = cells.find(idx => idx.r === r && idx.c === c);
         if(!cellData.plant) {
+            let pD = plantData[selectedPlantType];
+            if(suns < pD.cost) return;
             playSfx('sfx-plant');
-            suns -= 100;
-            updateSunUI();
-            startCooldown();
+            suns -= pD.cost;
+            startCooldown(selectedPlantType, pD.cd);
             plantingMode = false;
-            document.getElementById('seed-bank').classList.remove('selected-seed');
-
+            document.querySelectorAll('.seed-bank-slot').forEach(s => s.classList.remove('selected-seed'));
+            updateSunUI();
             let plantEl = document.createElement('img');
-            plantEl.src = 'https://www.dropbox.com/scl/fi/mecjixahsxo2cls30upjj/Picsart_26-04-29_23-55-15-781.png?rlkey=zsjyqs640gb9544yf15utu1ln&st=rlqjkz5u&dl=1';
+            plantEl.src = pD.img;
             plantEl.className = 'plant';
             cellData.el.appendChild(plantEl);
-            let pObj = { hp: 250, r: r, c: c, el: plantEl, lastShot: 0 };
+            let pObj = { type: selectedPlantType, hp: pD.hp, r: r, c: c, el: plantEl, lastAction: Date.now(), lastSun: Date.now(), lastBlade: Date.now() };
             cellData.plant = pObj;
             plants.push(pObj);
         }
     }
 
-    function startCooldown() {
-        cooldownActive = true;
-        let overlay = document.getElementById('cooldown-overlay');
+    function startCooldown(type, cd) {
+        cooldowns[type] = true;
+        let overlay = document.getElementById('cd-' + type);
         overlay.style.height = '100%';
-        updateSeedUI();
+        updateSunUI();
         let start = Date.now();
-        let dur = 3000;
         let inter = setInterval(() => {
             let elapsed = Date.now() - start;
-            let per = 100 - (elapsed / dur * 100);
+            let per = 100 - (elapsed / cd * 100);
             overlay.style.height = per + '%';
-            if(elapsed >= dur) {
+            if(elapsed >= cd) {
                 clearInterval(inter);
                 overlay.style.height = '0%';
-                cooldownActive = false;
-                updateSeedUI();
+                cooldowns[type] = false;
+                updateSunUI();
             }
         }, 50);
     }
 
     function startGameLoop() {
         gameActive = true;
+        levelTime = 0;
+        zombieSoundPlayed = false;
+        eatersCount = 0;
+        
+        setInterval(() => { if(gameActive) spawnSun(); }, 5000);
+
         setInterval(() => {
             if(!gameActive) return;
-            spawnSun();
-        }, 5000);
+            levelTime += 50;
+            
+            if(levelTime === 8000 && !zombieSoundPlayed) {
+                playSfx('sfx-zombie-come');
+                spawnZombieRandom();
+                zombieSoundPlayed = true;
+            }
 
-        setTimeout(() => {
-            playSfx('sfx-zombie-come');
-            spawnZombie();
-            let spawnInt = setInterval(() => {
-                if(!gameActive) { clearInterval(spawnInt); return; }
-                if(!waveTriggered) spawnZombie();
-            }, 8000);
-        }, 5000);
-
-        setTimeout(() => { if(gameActive) triggerWave(); }, 75000); 
+            if(levelTime > 8000 && levelTime % 45000 === 0 && wavesTriggered < totalWaves) {
+                triggerWave();
+            }
+            if(levelTime > 8000 && levelTime % 8000 === 0 && wavesTriggered < totalWaves && !waveSpawning) {
+                spawnZombieRandom();
+            }
+        }, 50);
 
         setInterval(gameTick, 50);
     }
 
-    function spawnSun() {
+    function spawnSun(customX, customY, dropValue = 50) {
         let sun = document.createElement('div');
         sun.className = 'sun';
-        sun.style.left = (Math.random() * 80 + 10) + '%';
-        sun.style.top = '-60px';
+        if(customX !== undefined) {
+            sun.style.left = customX + '%';
+            sun.style.top = customY + '%';
+        } else {
+            sun.style.left = (Math.random() * 80 + 10) + '%';
+            sun.style.top = '-60px';
+            let targetY = Math.random() * 60 + 20;
+            let currentY = -10;
+            let fall = setInterval(() => {
+                if(!gameActive) { clearInterval(fall); sun.remove(); return; }
+                currentY += 1;
+                sun.style.top = currentY + '%';
+                if(currentY >= targetY) clearInterval(fall);
+            }, 30);
+        }
         document.getElementById('game-screen').appendChild(sun);
-        
-        let targetY = Math.random() * 60 + 20;
-        let currentY = -10;
-        let fall = setInterval(() => {
-            if(!gameActive) { clearInterval(fall); sun.remove(); return; }
-            currentY += 1;
-            sun.style.top = currentY + '%';
-            if(currentY >= targetY) clearInterval(fall);
-        }, 30);
-
         sun.onclick = function() {
-            clearInterval(fall);
             playSfx('sfx-sun');
             this.classList.add('sun-collecting');
-            this.style.left = '10px';
-            this.style.top = '10px';
-            this.style.width = '20px';
-            this.style.height = '20px';
+            this.style.left = '10px'; this.style.top = '10px';
+            this.style.width = '20px'; this.style.height = '20px';
             setTimeout(() => {
-                suns += 50;
+                suns += dropValue;
                 updateSunUI();
                 this.remove();
             }, 500);
@@ -389,44 +477,84 @@
         setTimeout(() => { if(sun.parentNode) sun.remove(); }, 10000);
     }
 
-    function updateSunUI() { 
-        document.getElementById('sun-counter').innerText = `Количество Солнц: ${suns}`; 
-        updateSeedUI();
+    function spawnZombieRandom() {
+        if(!gameActive) return;
+        let zType = 'normal';
+        let hp = 330;
+        let speedMult = 1;
+        let img = 'https://www.dropbox.com/scl/fi/o7gsnni0d6jhvjqa1xjmw/Picsart_26-04-29_23-54-32-866.png?rlkey=bpg3zl4gmwi9r8nhlcvbi3ilh&st=dxvn5on9&dl=1';
+        if(currentLevel >= 2 && Math.random() < 0.3) {
+            zType = 'military'; hp = 640; 
+            img = 'https://www.dropbox.com/scl/fi/vn4zyqswt1ir93kpwmza0/Picsart_26-04-30_20-05-08-683.png?rlkey=mnl9cre4m5p4dik5vesv0l2s3&st=h4z6q5n6&dl=1';
+        }
+        if(currentLevel >= 3 && Math.random() < 0.2) {
+            zType = 'vaulter'; hp = 450; speedMult = 1.4;
+            img = 'https://www.dropbox.com/scl/fi/ikhmc7sm22ldphl4b598p/Picsart_26-04-30_20-39-47-597.png?rlkey=hgcbjueyqzyxie7y1mnqv83kq&st=ec4v96lj&dl=1';
+        }
+        spawnZombieDirect(zType, hp, speedMult, img);
     }
 
-    function spawnZombie() {
-        if(!gameActive) return;
+    function spawnZombieDirect(type, hp, speedM, img) {
         let row = Math.floor(Math.random() * 5);
         let zEl = document.createElement('div');
         zEl.className = 'zombie';
+        zEl.style.backgroundImage = `url(${img})`;
         zEl.style.top = (10 + row * 18) + '%';
         zEl.style.left = '105%';
         document.getElementById('game-screen').appendChild(zEl);
-        zombies.push({ hp: 330, r: row, el: zEl, x: 105, eating: false, target: null });
+        let dx = (100 / (32000 / 50)) * speedM;
+        zombies.push({ type: type, state: 'run', hp: hp, r: row, el: zEl, x: 105, dx: dx, eating: false, target: null });
     }
 
     function triggerWave() {
-        waveTriggered = true;
+        wavesTriggered++;
+        waveSpawning = true;
+        document.getElementById('wave-count').innerText = Math.max(0, totalWaves - wavesTriggered);
         playSfx('sfx-wave');
         let wText = document.getElementById('wave-warning');
         wText.style.display = 'block';
-        setTimeout(()=> wText.style.transform = 'scale(1)', 100);
+        wText.style.transform = 'scale(1)';
+        wText.style.opacity = '1';
+        
         setTimeout(() => {
-            wText.style.display = 'none';
-            for(let i=0; i<8; i++) setTimeout(spawnZombie, i * 500);
-        }, 5000);
+            wText.style.opacity = '0';
+            setTimeout(() => { wText.style.display = 'none'; wText.style.transform = 'scale(0.1)'; }, 500);
+            
+            let count = (wavesTriggered === 1) ? 6 : 12; // Больше зомби на 2 волне
+            for(let i=0; i<count; i++) {
+                setTimeout(() => {
+                    spawnZombieRandom();
+                    if(i === count - 1) waveSpawning = false;
+                }, i * 400);
+            }
+        }, 4000);
     }
 
     function gameTick() {
         if(!gameActive) return;
         let now = Date.now();
-
+        
         plants.forEach(p => {
             if(p.hp <= 0) return;
-            let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
-            if(hasZ && now - p.lastShot > 2500) {
-                p.lastShot = now;
-                shootPea(p);
+            if(p.type === 'pea') {
+                let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
+                if(hasZ && now - p.lastAction > 2500) {
+                    p.lastAction = now;
+                    shootProjectile(p, 'pea', 30);
+                }
+            } else if(p.type === 'sunflower') {
+                if(now - p.lastSun > 25000) {
+                    p.lastSun = now;
+                    p.el.style.opacity = 0.5;
+                    setTimeout(() => p.el.style.opacity = 1, 1000);
+                    spawnSun(18 + p.c * 17, 15 + p.r * 18, 50);
+                }
+                let hasZ = zombies.some(z => z.r === p.r && z.hp > 0 && z.x > (15 + p.c * 17));
+                if(hasZ && now - p.lastBlade > 30000) {
+                    p.lastBlade = now;
+                    playSfx('sfx-blade-throw');
+                    shootProjectile(p, 'blade', 150);
+                }
             }
         });
 
@@ -434,92 +562,112 @@
             if(z.hp <= 0) return;
             let cell = cells.find(c => c.r === z.r && (15 + c.c * 17) >= z.x - 10 && (15 + c.c * 17) <= z.x);
             
+            if(z.type === 'vaulter' && z.state === 'run' && cell && cell.plant && cell.plant.hp > 0) {
+                playSfx('sfx-jump'); z.state = 'walk'; z.dx = (100 / (35000 / 50));
+                z.el.style.backgroundImage = `url('https://www.dropbox.com/scl/fi/sdi881cq9rtz3vzremtql/Picsart_26-04-30_20-40-14-868.png?rlkey=kwmxc61ugyhp47ma6n9q6lls1&st=ty0tcw20&dl=1')`;
+                z.x -= 15; return;
+            }
+
             if(cell && cell.plant && cell.plant.hp > 0) {
-                if(!z.eating) {
-                    z.eating = true;
-                    z.target = cell.plant;
+                if(!z.eating) { 
+                    z.eating = true; 
+                    z.target = cell.plant; 
+                    eatersCount++;
                     playSfx('sfx-eat');
                 }
-                z.target.hp -= 1.5;
+                
+                let dmg = (z.target.type === 'nut') ? 4.16 : 1.5;
+                z.target.hp -= dmg;
                 z.target.el.style.filter = (now % 200 < 100) ? 'brightness(3)' : 'brightness(1)';
                 
                 if(z.target.hp <= 0) {
+                    if(z.target.type === 'nut') {
+                        playSfx('sfx-explode');
+                        let expl = document.createElement('div'); expl.className = 'explosion';
+                        z.target.el.parentElement.appendChild(expl);
+                        setTimeout(() => expl.remove(), 1000);
+                        zombies.forEach(zz => { 
+                            if(zz.r === z.target.r && zz.x >= z.target.c * 17 && zz.x <= (z.target.c + 1) * 17 + 30) {
+                                if(zz.eating) { zz.eating = false; eatersCount--; }
+                                zz.hp = 0;
+                                zz.el.classList.add('dying');
+                                setTimeout(() => zz.el.remove(), 500);
+                            }
+                        });
+                    }
                     let deadPlant = z.target;
                     deadPlant.el.style.filter = 'brightness(10)';
-                    deadPlant.el.style.transition = 'all 0.5s';
                     deadPlant.el.style.opacity = '0';
                     deadPlant.el.style.transform = 'translateY(-20px)';
                     setTimeout(() => deadPlant.el.remove(), 500);
-                    cell.plant = null;
-                    z.eating = false;
-                    stopAudio('sfx-eat');
+                    cell.plant = null; 
+                    
+                    zombies.forEach(zz => {
+                        if(zz.target === deadPlant) {
+                            if(zz.eating) eatersCount--;
+                            zz.eating = false;
+                            zz.target = null;
+                        }
+                    });
+                    
+                    if(eatersCount <= 0) { stopAudio('sfx-eat'); eatersCount = 0; }
                 }
             } else {
                 if(z.eating) { 
                     z.eating = false; 
-                    stopAudio('sfx-eat'); 
-                    /* ФИКС 2: Возвращаем нормальный вид растению, если зомби ушел/умер */
-                    if(z.target && z.target.el) z.target.el.style.filter = 'brightness(1)';
+                    eatersCount--; 
+                    if(eatersCount <= 0) { stopAudio('sfx-eat'); eatersCount = 0; }
                 }
-                z.x -= (100 / (32000 / 50));
-                z.el.style.left = z.x + '%';
+                z.x -= z.dx; z.el.style.left = z.x + '%';
             }
-
-            if(z.x <= 5) {
-                gameActive = false;
-                stopAllSounds();
-                playSfx('sfx-lose');
-                document.getElementById('lose-screen').style.display = 'block';
-            }
+            if(z.x <= 5) { gameActive = false; stopAllSounds(); playSfx('sfx-lose'); document.getElementById('lose-screen').style.display = 'block'; }
         });
 
-        if(waveTriggered && zombies.length > 0 && zombies.every(z => z.hp <= 0)) {
+        if(wavesTriggered >= totalWaves && !waveSpawning && zombies.length > 0 && zombies.every(z => z.hp <= 0)) {
             gameActive = false;
+            stopAudio('sfx-eat');
             let winSeed = document.getElementById('win-seed');
+            if(currentLevel === 1) winSeed.src = 'https://www.dropbox.com/scl/fi/94ixo4rnm687xqsf5qu2q/Picsart_26-04-29_23-48-27-973.png?rlkey=a1s95150lhm2kyatcmom9t8dj&st=xzm3qqxb&dl=1';
+            else if(currentLevel === 2) winSeed.src = 'https://www.dropbox.com/scl/fi/rxbxa8npw46gifa3vaihy/Picsart_26-04-30_20-27-18-541.png?rlkey=sipsu89aq29zjrioxnqh3rhdd&st=4w6gblau&dl=1';
+            else winSeed.src = 'https://www.dropbox.com/scl/fi/3tifzmnzczffgf543kpmo/Picsart_26-04-30_21-00-49-599.png?rlkey=4lbwynwu1mv6n266rg2hgw6tg&st=i55jvi2p&dl=1';
             winSeed.style.display = 'block';
             winSeed.onclick = () => {
-                winSeed.style.display = 'none';
-                stopAudio('bgm-game');
-                playSfx('sfx-win');
+                winSeed.style.display = 'none'; stopAudio('bgm-game'); playSfx('sfx-win');
                 document.getElementById('white-fade').style.opacity = 1;
-                localStorage.setItem('pvz_demo_beaten', 'true');
+                localStorage.setItem('pvz_level', currentLevel + 1);
                 setTimeout(() => location.reload(), 3000);
             };
         }
     }
 
-    function shootPea(p) {
-        let pea = document.createElement('div');
-        pea.className = 'pea-projectile';
-        pea.style.top = (12 + p.r * 18) + '%';
+    function shootProjectile(p, type, dmg) {
+        let proj = document.createElement('div');
+        proj.className = type === 'pea' ? 'pea-projectile' : 'blade-projectile';
+        proj.style.top = (12 + p.r * 18) + '%';
         let px = 20 + p.c * 17;
-        pea.style.left = px + '%';
-        document.getElementById('game-screen').appendChild(pea);
-
+        proj.style.left = px + '%';
+        document.getElementById('game-screen').appendChild(proj);
+        let pSpeed = type === 'pea' ? 2 : 4;
         let move = setInterval(() => {
-            if(!gameActive) { pea.remove(); clearInterval(move); return; }
-            px += 2;
-            pea.style.left = px + '%';
-            
+            if(!gameActive) { proj.remove(); clearInterval(move); return; }
+            px += pSpeed; proj.style.left = px + '%';
             let hitZ = zombies.find(z => z.hp > 0 && z.r === p.r && px >= z.x && px <= z.x + 5);
             if(hitZ) {
-                clearInterval(move);
-                pea.remove();
-                playSfx('sfx-hit');
-                hitZ.hp -= 30;
+                clearInterval(move); proj.remove();
+                if(type === 'blade') {
+                    if(hitZ.hp <= dmg && hitZ.hp > 0) { playSfx('sfx-blade-finish'); spawnSun(hitZ.x, 15 + hitZ.r * 18, 50); } 
+                    else { playSfx('sfx-blade-hit'); }
+                } else { playSfx('sfx-hit'); }
+                hitZ.hp -= dmg;
                 hitZ.el.classList.add('hit');
                 setTimeout(() => hitZ.el.classList.remove('hit'), 200);
-                
                 if(hitZ.hp <= 0) {
+                    if(hitZ.eating) { hitZ.eating = false; eatersCount--; if(eatersCount <= 0) stopAudio('sfx-eat'); }
                     hitZ.el.classList.add('dying');
-                    if(hitZ.eating) {
-                        stopAudio('sfx-eat');
-                        if(hitZ.target && hitZ.target.el) hitZ.target.el.style.filter = 'brightness(1)';
-                    }
                     setTimeout(() => hitZ.el.remove(), 500);
                 }
             }
-            if(px > 110) { clearInterval(move); pea.remove(); }
+            if(px > 110) { clearInterval(move); proj.remove(); }
         }, 30);
     }
 </script>
