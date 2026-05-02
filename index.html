@@ -110,7 +110,7 @@
 <audio id="bgm-menu" src="https://www.dropbox.com/scl/fi/012uukhxiz87qgdaus8ma/02.-Crazy-Dave-Intro-Theme.mp3?rlkey=i7b1zcq4yf14eepf55xbl0hok&st=hc3h77ie&dl=1" loop></audio>
 <audio id="bgm-seed" src="https://www.dropbox.com/scl/fi/2ue39yzvpcwulyfjisvqi/03.-Choose-Your-Seeds.mp3?rlkey=52tn4bxl07xb3fmqzl1jrvnqu&st=v5m0v9fk&dl=1" loop></audio> 
 <audio id="bgm-game" src="https://www.dropbox.com/scl/fi/vyydag2rvkrwk5lrypk0j/04.-Grasswalk.mp3?rlkey=cdz2wxaeiy8i6i9emna22awe6&st=98vcjgdo&dl=1" loop></audio>
-<audio id="sfx-click" src="https://www.dropbox.com/scl/fi/nnpcdbjr77d9v0fjhjy6x/Voicy_Button-Click-pvz.mp3?rlkey=uhwo2es4qitkadjseb6qbilaa&st=6epsmstj&dl=1"></audio>
+<audio id="sfx-click" src="https://www.dropbox.com/scl/fi/nnpcdbjr77d9v0fjhjy6x/Voicy_Button-Click-pvz.mp3?rlkey=uhwo2es4qitkadjseb6qbilaa&st=6epststj&dl=1"></audio>
 <audio id="sfx-ready" src="https://www.dropbox.com/scl/fi/6nyzgkjbxan27en03yljk/plants-vs-zombies-ready-set-plant.mp3?rlkey=8lxxgfy6ton8kq0oo9ng21shu&st=qq6fo0td&dl=1"></audio>
 <audio id="sfx-seed-pickup" src="https://www.dropbox.com/scl/fi/ubrllwhz3fedilz9qjwnn/plants-vs-zombies-seed-packet-sound.mp3?rlkey=852c6yy1teyif9r58vwsd9poh&st=7qp9ejbz&dl=1"></audio>
 <audio id="sfx-plant" src="https://www.dropbox.com/scl/fi/6fi6gjjlcjx9vdgg2981z/plants-vs-zombies-planting-sound-2.mp3?rlkey=zd898mwjy9ipku7x5eibsllnx&st=xdja7565&dl=1"></audio>
@@ -262,7 +262,6 @@
 
     function updateEatingSound() {
         let audio = document.getElementById('sfx-eat');
-        // Проверяем только РЕАЛЬНО живых и РЕАЛЬНО жрущих зомби
         let isEating = zombies.some(z => !z.isDead && z.hp > 0 && z.eating && z.target && z.target.hp > 0);
         if (isEating) {
             if (audio.paused) { 
@@ -780,7 +779,6 @@
         zombies = zombies.filter(z => !z.isDead && z.hp > 0);
         plants = plants.filter(p => p.hp > 0);
 
-        // КОРРЕКТНАЯ ПРОВЕРКА ПОБЕДЫ: если волны кончились, спавн закончен и живых зомби 0
         if(wavesTriggered >= totalWaves && !waveSpawning && zombies.length === 0) {
             gameActive = false;
             let winSeed = document.getElementById('win-seed');
@@ -788,6 +786,7 @@
             else if(currentLevel === 2) winSeed.src = 'https://www.dropbox.com/scl/fi/rxbxa8npw46gifa3vaihy/Picsart_26-04-30_20-27-18-541.png?rlkey=sipsu89aq29zjrioxnqh3rhdd&st=4w6gblau&dl=1';
             else if(currentLevel === 3) winSeed.src = 'https://www.dropbox.com/scl/fi/3tifzmnzczffgf543kpmo/Picsart_26-04-30_21-00-49-599.png?rlkey=4lbwynwu1mv6n266rg2hgw6tg&st=i55jvi2p&dl=1';
             else if(currentLevel === 4) winSeed.src = 'https://www.dropbox.com/scl/fi/a2jl8w6nri8e04kplyqv2/Picsart_26-05-01_16-02-46-991.png?rlkey=ww4svc667dx440janbvdbazx5&st=5ixnt3f2&dl=1';
+            else if(currentLevel === 5) winSeed.src = 'https://www.dropbox.com/scl/fi/i5b2zqkz3jo3h4flyrjdj/Picsart_26-05-01_16-06-34-103.png?rlkey=rmx777mo11wop7e61fdu8n86p&st=zo1rxsax&dl=1';
             else winSeed.src = 'https://www.dropbox.com/scl/fi/q6bwk4kbngbhjl6fvckmt/Picsart_26-05-02_13-54-16-284.png?rlkey=ctg6wqm8mj067zcrq26on4u3r&st=n91529ho&dl=1'; 
 
             winSeed.style.display = 'block';
